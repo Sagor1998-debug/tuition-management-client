@@ -3,6 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'; // ← ADD THIS
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -26,13 +27,17 @@ const api = axios.create({
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // ← ADD THIS
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       api.defaults.headers.Authorization = `Bearer ${token}`;
       api.get('/users/profile')
-        .then(res => setUser(res.data))
+        .then(res => {
+          setUser(res.data);
+          // Optional: Redirect on page load if needed
+        })
         .catch(() => localStorage.removeItem('token'))
         .finally(() => setLoading(false));
     } else {
@@ -40,20 +45,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const handleSuccessfulAuth = (userData) => {
+    setUser(userData);
+    toast.success('Welcome back!');
+
+    // ROLE-BASED REDIRECT
+    if (userData.role === 'admin') {
+      navigate('/dashboard'); // or '/admin-dashboard' if separate
+    } else if (userData.role === 'tutor') {
+      navigate('/dashboard');
+    } else {
+      navigate('/dashboard'); // student
+    }
+  };
+
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', res.data.token);
     api.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-    setUser(res.data.user);
-    toast.success('Login successful!');
+    handleSuccessfulAuth(res.data.user);
   };
 
   const register = async (data) => {
     const res = await api.post('/auth/register', data);
     localStorage.setItem('token', res.data.token);
     api.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-    setUser(res.data.user);
-    toast.success('Registration successful!');
+    handleSuccessfulAuth(res.data.user);
   };
 
   const googleLogin = async () => {
@@ -67,9 +84,9 @@ export const AuthProvider = ({ children }) => {
       });
       localStorage.setItem('token', res.data.token);
       api.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-      setUser(res.data.user);
-      toast.success('Google login successful!');
+      handleSuccessfulAuth(res.data.user);
     } catch (err) {
+      console.error(err);
       toast.error('Google login failed');
     }
   };
@@ -78,7 +95,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     delete api.defaults.headers.Authorization;
     setUser(null);
-    toast.success('Logged out');
+    toast.success('Logged out successfully');
+    navigate('/login');
   };
 
   return (
