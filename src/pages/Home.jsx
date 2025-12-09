@@ -29,7 +29,7 @@ export default function Home() {
             </div>
             <div className="stat text-center">
               <div className="stat-value text-4xl">1,200+</div>
-              <div className="stat-title text-white">Verified Tutors</div>
+              <div className="stat-title text-red">Verified Tutors</div>
             </div>
             <div className="stat text-center">
               <div className="stat-value text-4xl">98%</div>

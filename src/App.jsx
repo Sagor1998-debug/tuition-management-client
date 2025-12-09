@@ -24,7 +24,7 @@ function App() {
     <div className="min-h-screen flex flex-col bg-base-100">
       <header className="bg-primary text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-bold">TuitionHub</h1>
+          <h1 className="text-7xl font-bold underline text-red-500">TuitionHub</h1>
           <nav className="space-x-6">
             <a href="/" className="hover:underline">Home</a>
             <a href="/tuitions" className="hover:underline">Tuitions</a>
