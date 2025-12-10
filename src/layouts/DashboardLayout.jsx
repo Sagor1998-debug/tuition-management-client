@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }) {
         { name: 'Dashboard', path: '/dashboard' },
         { name: 'Manage Users', path: '/dashboard/users' },
         { name: 'Manage Tuitions', path: '/dashboard/tuitions' },
-        { name: 'Reports', path: '/dashboard/reports' },
+        { name: 'Reports & Analytics', path: '/dashboard/reports' }, 
       ];
     } else if (user?.role === 'tutor') {
       return [

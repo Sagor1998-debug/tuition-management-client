@@ -20,6 +20,7 @@ import PostTuition from './pages/dashboard/PostTuition';
 import Applications from './pages/dashboard/Applications';
 import PaymentHistory from './pages/dashboard/PaymentHistory';
 import ProfileSettings from './pages/dashboard/ProfileSettings';
+import Reports from './pages/dashboard/Reports';
 
 function App() {
   const { user, loading } = useContext(AuthContext);
@@ -146,7 +147,7 @@ function App() {
           <Route path="/dashboard/applications" element={<Applications />} />
           <Route path="/dashboard/payments" element={<PaymentHistory />} />
           <Route path="/dashboard/profile" element={<ProfileSettings />} />
-
+          <Route path="/dashboard/reports" element={<Reports />} />
           <Route path="/tutors" element={<Tutors />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />

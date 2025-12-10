@@ -1,15 +1,23 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function NotFound() {
   return (
-    <div className="hero min-h-screen">
-      <div className="hero-content text-center">
-        <div className="max-w-md">
-          <h1 className="text-8xl font-bold text-error">404</h1>
-          <p className="text-2xl mt-6">Page Not Found</p>
-          <Link to="/" className="text-white bg-pink-950 hover:bg-blue-600 hover:text-white ... btn btn-primary mt-8">Go Home</Link>
-        </div>
-      </div>
+    <div className="min-h-screen bg-base-200 flex items-center justify-center px-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
+        <h1 className="text-9xl font-bold text-emerald-800">404</h1>
+        <h2 className="text-4xl font-bold mt-6 text-gray-800">Page Not Found</h2>
+        <p className="text-xl text-gray-600 mt-4 mb-10">
+          Sorry, we couldn't find the page you're looking for.
+        </p>
+        <Link to="/" className="btn btn-success btn-lg">
+          Back to Home
+        </Link>
+      </motion.div>
     </div>
   );
 }
