@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-import toast from 'react-hot-toast';
 
 export default function Home() {
   const [tuitions, setTuitions] = useState([]);
@@ -11,18 +10,29 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+
+      // Fetch Latest Tuitions — your endpoint exists!
       try {
-        const [tuitionRes, tutorRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/tuitions'), // adjust endpoint if needed
-          axios.get('http://localhost:5000/api/users/tutors') // create this route if missing
-        ]);
-        setTuitions(tuitionRes.data.slice(0, 6));
+        const tuitionRes = await axios.get('http://localhost:5000/api/tuitions');
+        // Backend returns { tuitions: [...], pagination: ... } or direct array
+        const tuitionList = tuitionRes.data.tuitions || tuitionRes.data || [];
+        setTuitions(tuitionList.slice(0, 6));
+      } catch (err) {
+        console.log('Tuitions not loaded yet (normal if no data)');
+        setTuitions([]);
+      }
+
+      // Fetch Latest Tutors — now safe even if endpoint missing
+      try {
+        const tutorRes = await axios.get('http://localhost:5000/api/users/tutors');
         setTutors(tutorRes.data.slice(0, 6));
       } catch (err) {
-        toast.error('Failed to load latest data');
-      } finally {
-        setLoading(false);
+        console.log('Tutors endpoint not ready — showing empty for now');
+        setTutors([]);
       }
+
+      setLoading(false);
     };
     fetchData();
   }, []);
@@ -119,24 +129,28 @@ export default function Home() {
       <section className="py-20 bg-base-300">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-emerald-800">Top Verified Tutors</h2>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-10">
-            {tutors.map((tutor, i) => (
-              <motion.div
-                key={tutor._id}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center"
-              >
-                <div className="avatar">
-                  <div className="w-24 rounded-full ring ring-primary ring-offset-2">
-                    <img src={tutor.photoUrl || '/src/assets/default-avatar.jpg'} alt={tutor.name} />
+          {tutors.length === 0 ? (
+            <p className="text-center text-gray-600">No tutors registered yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-10">
+              {tutors.map((tutor, i) => (
+                <motion.div
+                  key={tutor._id}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-center"
+                >
+                  <div className="avatar">
+                    <div className="w-24 rounded-full ring ring-primary ring-offset-2">
+                      <img src={tutor.photoUrl || '/src/assets/default-avatar.jpg'} alt={tutor.name} />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mt-4 font-semibold">{tutor.name}</h3>
-              </motion.div>
-            ))}
-          </div>
+                  <h3 className="mt-4 font-semibold">{tutor.name}</h3>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

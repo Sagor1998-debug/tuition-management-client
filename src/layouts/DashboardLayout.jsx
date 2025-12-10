@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }) {
     navigate('/login');
   };
 
-  // Common sidebar links based on role
+  // Role-based sidebar links — FULLY UPDATED FOR STUDENT
   const getSidebarLinks = () => {
     if (user?.role === 'admin') {
       return [
@@ -28,28 +28,34 @@ export default function DashboardLayout({ children }) {
         { name: 'Revenue History', path: '/dashboard/revenue' },
       ];
     } else {
-      // student
+      // Student — FULL LIST as per requirement
       return [
         { name: 'Dashboard', path: '/dashboard' },
         { name: 'My Tuitions', path: '/dashboard/my-tuitions' },
-        { name: 'Applications', path: '/dashboard/applications' },
+        { name: 'Post New Tuition', path: '/dashboard/post-tuition' },        // ← Added
+        { name: 'Applied Tutors', path: '/dashboard/applications' },        // ← Renamed for clarity
         { name: 'Payment History', path: '/dashboard/payments' },
+        { name: 'Profile Settings', path: '/dashboard/profile' },           // ← Added
       ];
     }
   };
 
+  const sidebarLinks = getSidebarLinks();
+
   return (
     <div className="min-h-screen bg-base-200 flex">
       {/* Sidebar */}
-      <div className="w-64 bg-teal-600 rounded-lg text-white flex flex-col">
+      <div className="w-64 bg-teal-600 text-white flex flex-col">
         <div className="p-6 border-b border-emerald-700">
           <h2 className="text-2xl font-bold">TuitionHub</h2>
-          <p className="text-emerald-300 text-sm mt-1">{user?.role?.toUpperCase()} PANEL</p>
+          <p className="text-emerald-300 text-sm mt-1">
+            {user?.role ? user.role.toUpperCase() + ' PANEL' : 'DASHBOARD'}
+          </p>
         </div>
 
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
-            {getSidebarLinks().map((link) => (
+            {sidebarLinks.map((link) => (
               <li key={link.path}>
                 <Link
                   to={link.path}
@@ -76,10 +82,15 @@ export default function DashboardLayout({ children }) {
       <div className="flex-1 flex flex-col">
         {/* Topbar */}
         <header className="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-emerald-800">Welcome, {user?.name || 'User'}</h1>
+          <h1 className="text-3xl font-bold text-emerald-800">
+            Welcome, {user?.name || 'User'}
+          </h1>
           <div className="avatar">
             <div className="w-12 rounded-full ring ring-emerald-600 ring-offset-base-100 ring-offset-2">
-              <img src={user?.photoUrl || '/src/assets/default-avatar.jpg'} alt="Profile" />
+              <img
+                src={user?.photoUrl || '/src/assets/default-avatar.jpg'}
+                alt="Profile"
+              />
             </div>
           </div>
         </header>
