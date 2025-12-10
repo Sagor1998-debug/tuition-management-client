@@ -1,63 +1,145 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 export default function Tuitions() {
   const [tuitions, setTuitions] = useState([]);
+  const [pagination, setPagination] = useState({ current: 1, pages: 1 });
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+
+  // Filters & Search
   const [search, setSearch] = useState('');
+  const [subject, setSubject] = useState('');
+  const [location, setLocation] = useState('');
+  const [minSalary, setMinSalary] = useState('');
+  const [maxSalary, setMaxSalary] = useState('');
+  const [sort, setSort] = useState(''); // salary_asc, salary_desc, etc.
+  const [page, setPage] = useState(1);
+
+  const fetchTuitions = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (subject) params.append('subject', subject);
+      if (location) params.append('location', location);
+      if (minSalary) params.append('minSalary', minSalary);
+      if (maxSalary) params.append('maxSalary', maxSalary);
+      if (sort) params.append('sort', sort);
+      params.append('page', page);
+
+      const res = await axios.get(`http://localhost:5000/api/tuitions?${params}`);
+      setTuitions(res.data.tuitions);
+      setPagination(res.data.pagination);
+    } catch (err) {
+      toast.error('Failed to load tuitions');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTuitions = async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/tuitions`, {
-        params: { page, search }
-      });
-      setTuitions(res.data.tuitions);
-      setTotalPages(res.data.pagination.pages);
-      setLoading(false);
-    };
     fetchTuitions();
-  }, [page, search]);
-
-  if (loading) return <div className="flex justify-center p-10"><span className="loading loading-spinner loading-lg"></span></div>;
+  }, [search, subject, location, minSalary, maxSalary, sort, page]);
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-4xl font-bold text-center mb-10">All Available Tuitions</h1>
+    <div className="container mx-auto py-10 px-4">
+      <h1 className="text-4xl font-bold text-center mb-10 text-emerald-800">All Tuitions</h1>
 
-      <div className="flex justify-center mb-8">
-        <input
-          type="text"
-          placeholder="Search by subject, location..."
-          className="input input-bordered input-lg w-full max-w-md"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      {/* Filters & Search */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <input 
+            type="text" 
+            placeholder="Search by subject/title" 
+            value={search} 
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className="input input-bordered"
+          />
+          <input 
+            type="text" 
+            placeholder="Subject" 
+            value={subject} 
+            onChange={(e) => { setSubject(e.target.value); setPage(1); }}
+            className="input input-bordered"
+          />
+          <input 
+            type="text" 
+            placeholder="Location" 
+            value={location} 
+            onChange={(e) => { setLocation(e.target.value); setPage(1); }}
+            className="input input-bordered"
+          />
+          <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="select select-bordered">
+            <option value="">Sort By</option>
+            <option value="salary_asc">Salary: Low to High</option>
+            <option value="salary_desc">Salary: High to Low</option>
+            <option value="date_desc">Newest First</option>
+          </select>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <input 
+            type="number" 
+            placeholder="Min Salary" 
+            value={minSalary} 
+            onChange={(e) => { setMinSalary(e.target.value); setPage(1); }}
+            className="input input-bordered"
+          />
+          <input 
+            type="number" 
+            placeholder="Max Salary" 
+            value={maxSalary} 
+            onChange={(e) => { setMaxSalary(e.target.value); setPage(1); }}
+            className="input input-bordered"
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tuitions.map(t => (
-          <Link to={`/tuitions/${t._id}`} key={t._id} className="card bg-base-100 shadow-xl hover:shadow-2xl transition">
-            <div className="card-body">
-              <h2 className="card-title">{t.subject} - {t.class}</h2>
-              <p className="text-gray-600">{t.location}</p>
-              <div className="badge badge-secondary badge-lg">৳{t.salary}/month</div>
-              <p className="mt-2">{t.description?.slice(0, 100)}...</p>
-              <div className="card-actions justify-end mt-4">
-                <div className="badge badge-outline">{t.schedule}</div>
+      {/* Tuitions Grid */}
+      {loading ? (
+        <div className="flex justify-center py-20"><span className="loading loading-spinner loading-lg"></span></div>
+      ) : tuitions.length === 0 ? (
+        <p className="text-center text-gray-600 py-20">No tuitions found matching your criteria.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {tuitions.map(t => (
+            <div key={t._id} className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <h3 className="card-title text-emerald-700">{t.subject} - Class {t.class}</h3>
+                <p>Location: {t.location}</p>
+                <p className="font-bold text-emerald-600">৳{t.salary}/month</p>
+                <div className="card-actions justify-end">
+                  <Link to={`/tuitions/${t._id}`} className="btn btn-primary btn-sm">View Details</Link>
+                </div>
               </div>
             </div>
-          </Link>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      <div className="flex justify-center mt-10 gap-2">
-        <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1} className="btn">Previous</button>
-        <span className="btn btn-ghost">Page {page} of {totalPages}</span>
-        <button onClick={() => setPage(p => p+1)} disabled={page === totalPages} className="btn">Next</button>
-      </div>
+      {/* Pagination */}
+      {!loading && pagination.pages > 1 && (
+        <div className="flex justify-center mt-10 gap-2">
+          <button 
+            onClick={() => setPage(Math.max(1, page - 1))} 
+            disabled={page === 1}
+            className="btn btn-outline"
+          >
+            Previous
+          </button>
+          <span className="flex items-center px-4">
+            Page {pagination.current} of {pagination.pages}
+          </span>
+          <button 
+            onClick={() => setPage(Math.min(pagination.pages, page + 1))} 
+            disabled={page === pagination.pages}
+            className="btn btn-outline"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
