@@ -44,7 +44,7 @@ export default function Tuitions() {
   }, [search, subject, location, minSalary, maxSalary, sort, page]);
 
   return (
-    <div className="container mx-auto py-10 px-4">
+    <div className="bg-slate-300 rounded-xl container mx-auto py-10 px-4">
       <h1 className="text-4xl font-bold text-center mb-10 text-emerald-800">All Tuitions</h1>
 
       {/* Filters & Search */}
@@ -102,9 +102,9 @@ export default function Tuitions() {
       ) : tuitions.length === 0 ? (
         <p className="text-center text-gray-600 py-20">No tuitions found matching your criteria.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {tuitions.map(t => (
-            <div key={t._id} className="card bg-base-100 shadow-xl">
+            <div key={t._id} className="card bg-rose-200 shadow-xl">
               <div className="card-body">
                 <h3 className="card-title text-emerald-700">{t.subject} - Class {t.class}</h3>
                 <p>Location: {t.location}</p>

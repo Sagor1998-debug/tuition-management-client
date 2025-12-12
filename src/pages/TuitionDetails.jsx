@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
@@ -6,12 +6,13 @@ import toast from 'react-hot-toast';
 
 export default function TuitionDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+
   const [tuition, setTuition] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-
   const [formData, setFormData] = useState({
     qualifications: '',
     experience: '',
@@ -19,14 +20,12 @@ export default function TuitionDetails() {
     message: ''
   });
 
+  // Fetch tuition details
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/tuitions/${id}`)
+    axios.get(`http://localhost:5000/dev/tuitions/${id}`)
       .then(res => {
         setTuition(res.data);
-        // Check if this tuition is already bookmarked by user
-        if (user?.bookmarks?.includes(id)) {
-          setIsBookmarked(true);
-        }
+        if (user?.bookmarks?.includes(id)) setIsBookmarked(true);
       })
       .catch(() => toast.error('Failed to load tuition'))
       .finally(() => setLoading(false));
@@ -58,7 +57,6 @@ export default function TuitionDetails() {
     }
   };
 
-  // BOOKMARK FUNCTIONALITY
   const handleBookmark = async () => {
     if (!user) return toast.error('Please login to bookmark');
 
@@ -68,12 +66,24 @@ export default function TuitionDetails() {
       });
       setIsBookmarked(!isBookmarked);
       toast.success(isBookmarked ? 'Removed from bookmarks' : 'Added to bookmarks!');
-    } catch (err) {
+    } catch {
       toast.error('Failed to bookmark');
     }
   };
 
-  if (loading) return <div className="text-center p-10"><span className="loading loading-spinner loading-lg"></span></div>;
+  // Loading state
+  if (loading) return (
+    <div className="text-center p-10">
+      <span className="loading loading-spinner loading-lg"></span>
+    </div>
+  );
+
+  // Tuition not found
+  if (!tuition) return (
+    <div className="text-center p-10 text-red-600">
+      Tuition not found.
+    </div>
+  );
 
   return (
     <div className="container mx-auto py-10 px-4">
@@ -81,10 +91,9 @@ export default function TuitionDetails() {
         <div className="card-body">
           <div className="flex justify-between items-start mb-4">
             <h2 className="card-title text-4xl text-emerald-800">
-              {tuition.subject} - Class {tuition.class}
+              {tuition?.subject} - Class {tuition?.class}
             </h2>
 
-            {/* BOOKMARK BUTTON — Visible to all logged-in users */}
             {user && (
               <button
                 onClick={handleBookmark}
@@ -95,30 +104,39 @@ export default function TuitionDetails() {
             )}
           </div>
 
-          <p className="text-2xl text-emerald-600 mt-4 font-bold">৳{tuition.salary}/month</p>
-          <p className="text-lg">Location: {tuition.location}</p>
-          <p>Schedule: {tuition.schedule || 'Not specified'}</p>
+          <p className="text-2xl text-emerald-600 mt-4 font-bold">৳{tuition?.salary}/month</p>
+          <p className="text-lg">Location: {tuition?.location}</p>
+          <p>Schedule: {tuition?.schedule || 'Not specified'}</p>
           <div className="divider"></div>
           <div className="prose max-w-none">
-            <p className="whitespace-pre-wrap">{tuition.description || tuition.details || 'No description available.'}</p>
+            <p className="whitespace-pre-wrap">{tuition?.description || tuition?.details || 'No description available.'}</p>
           </div>
 
           <div className="card-actions justify-end mt-8 gap-4">
-            {/* Apply Button for Tutors */}
             {user?.role === 'tutor' && (
-              <button 
-                onClick={() => setShowModal(true)} 
-                className="btn btn-success btn-lg"
-              >
-                Apply for this Tuition
-              </button>
-            )}
+              <>
+                <button 
+                  onClick={() => setShowModal(true)} 
+                  className="btn btn-success btn-lg"
+                >
+                  Apply for this Tuition
+                </button>
 
-            {/* Already applied hint */}
-            {user?.role === 'tutor' && tuition.applied && (
-              <div className="alert alert-info">
-                <span>You have already applied for this tuition</span>
-              </div>
+                {tuition?.applied && (
+                  <div className="alert alert-info">
+                    You have already applied for this tuition
+                  </div>
+                )}
+
+                {tuition?.approvedTutor === user?.id && (
+                  <button 
+                    onClick={() => navigate(`/messages/${tuition?.postedBy}`)} 
+                    className="btn btn-info"
+                  >
+                    Chat with Student
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
