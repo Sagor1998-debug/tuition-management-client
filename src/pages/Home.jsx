@@ -167,9 +167,9 @@ export default function Home() {
               <motion.div
                 key={i}
                 whileHover={{ scale: 1.05 }}
-                className="text-center"
+                className="bg-violet-200 rounded-xl text-center"
               >
-                <div className="bg-primary text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4">
+                <div className="bg-rose-600 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4">
                   {item.step}
                 </div>
                 <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
@@ -184,7 +184,7 @@ export default function Home() {
       <section className="py-20 bg-base-200">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-emerald-800">Why Choose TuitionHub?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className=" grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
               { icon: "✅", title: "Verified Tutors" },
               { icon: "🔒", title: "Secure Payment" },
@@ -196,7 +196,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="text-center bg-white p-8 rounded-xl shadow-lg"
+                className="bg-violet-300 text-center bg-white p-8 rounded-xl shadow-lg"
               >
                 <div className="text-6xl mb-4">{feat.icon}</div>
                 <h3 className="text-xl font-bold">{feat.title}</h3>
