@@ -8,6 +8,7 @@ import Tuitions from './pages/Tuitions';
 import TuitionDetails from './pages/TuitionDetails';
 import NotFound from './pages/NotFound';
 import Tutors from './pages/Tutors';  
+import TutorProfile from './pages/TutorProfile';
 import About from './pages/About';   
 import Contact from './pages/Contact'; 
 
@@ -44,9 +45,11 @@ function App() {
               alt="TuitionHub Logo" 
               className="w-16 h-12 rounded-lg object-cover drop-shadow-2xl"
             />
-            <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white to-emerald-200 bg-clip-text text-transparent">
-              TuitionHub
-            </h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">
+  <span className="text-yellow-400">e</span>
+  <span className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white to-emerald-200 bg-clip-text text-transparent">Tuition</span>
+  <span className="text-rose-400">Bd</span>
+</h1>
           </div>
 
           {/* NAVIGATION — DESKTOP */}
@@ -149,6 +152,7 @@ function App() {
           <Route path="/dashboard/profile" element={<ProfileSettings />} />
           <Route path="/dashboard/reports" element={<Reports />} />
           <Route path="/tutors" element={<Tutors />} />
+          <Route path="/tutor/:id" element={<TutorProfile />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />

@@ -110,7 +110,7 @@ export default function Tuitions() {
                 <p>Location: {t.location}</p>
                 <p className="font-bold text-emerald-600">৳{t.salary}/month</p>
                 <div className="card-actions justify-end">
-                  <Link to={`/tuitions/${t._id}`} className="btn btn-primary btn-sm">View Details</Link>
+                  <Link to={`/tuitions/${t._id}`} className="bg-transparent hover:bg-purple-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-purple-600 hover:border-transparent rounded">View Details</Link>
                 </div>
               </div>
             </div>
