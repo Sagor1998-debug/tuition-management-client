@@ -131,16 +131,16 @@ export default function Tutors() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
             {currentTutors.map(tutor => (
-              <div key={tutor._id} className="bg-pink-50 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+              <div key={tutor._id} className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
                 <div className="flex flex-col items-center text-center">
                   <img
                     src={tutor.photoUrl || 'https://randomuser.me/api/portraits/lego/5.jpg'}
                     alt={tutor.name}
-                    className="w-28 h-28 rounded-full mb-4 object-cover border-4 border-emerald-600"
+                    className=" w-28 h-28 rounded-full mb-4 object-cover border-4 border-emerald-600"
                   />
-                  <h3 className="text-xl font-bold text-emerald-800">{tutor.name}</h3>
-                  <p className="text-sm text-gray-700 mt-2">{tutor.qualifications || 'No qualifications listed'}</p>
-                  <p className="text-sm text-gray-600 mt-1">{tutor.experience || 'Not specified'}</p>
+                  <h3 className="text-xl font-bold text-rose-900">{tutor.name}</h3>
+                  <p className="text-sm text-rose-900 mt-2">{tutor.qualifications || 'No qualifications listed'}</p>
+                  <p className="text-sm text-rose-900 mt-1">{tutor.experience || 'Not specified'}</p>
                   <Link to={`/tutor/${tutor._id}`} className="bg-transparent hover:bg-purple-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-purple-600 hover:border-transparent rounded">
                     View Profile
                   </Link>
