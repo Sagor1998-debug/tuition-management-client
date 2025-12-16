@@ -58,6 +58,7 @@ export default function Applications() {
     if (role) loadApplications();
   }, [role]);
 
+  // Handle Reject
   const handleReject = async (id) => {
     if (!window.confirm('Are you sure you want to reject this application?')) return;
     const config = getAuthConfig();
@@ -73,9 +74,42 @@ export default function Applications() {
     }
   };
 
-  const handleAccept = (id) => {
-    navigate(`/checkout/${id}`);
+  // Handle Accept & Pay — Redirect to Stripe Checkout
+  const handleAccept = async (id) => {
+    const config = getAuthConfig();
+    if (!config) return;
+
+    try {
+      toast.loading('Redirecting to payment...');
+
+      const res = await axios.post(
+        'http://localhost:5000/api/payments/create-checkout-session',
+        { applicationId: id },
+        config
+      );
+
+      toast.dismiss();
+      // Redirect to Stripe checkout URL
+      window.location.href = res.data.url;
+    } catch (err) {
+      toast.dismiss();
+      console.error(err);
+      toast.error('Failed to start payment. Try again.');
+    }
   };
+
+  // Handle payment return (success/cancel)
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get('success') === 'true') {
+      toast.success('Payment successful! Tutor approved.');
+      window.history.replaceState({}, '', '/dashboard/applications');
+    }
+    if (query.get('cancel') === 'true') {
+      toast.error('Payment cancelled.');
+      window.history.replaceState({}, '', '/dashboard/applications');
+    }
+  }, []);
 
   return (
     <DashboardLayout>
@@ -127,8 +161,12 @@ export default function Applications() {
                   {/* Action Buttons for Students */}
                   {role === 'student' && app.status === 'pending' && (
                     <div className="flex flex-col gap-3">
-                      <button onClick={() => handleAccept(app._id)} className="btn btn-success">Accept & Pay</button>
-                      <button onClick={() => handleReject(app._id)} className="btn btn-error btn-outline">Reject</button>
+                      <button onClick={() => handleAccept(app._id)} className="btn btn-success">
+                        Accept & Pay
+                      </button>
+                      <button onClick={() => handleReject(app._id)} className="btn btn-error btn-outline">
+                        Reject
+                      </button>
                     </div>
                   )}
                 </div>
