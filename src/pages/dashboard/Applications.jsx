@@ -7,13 +7,47 @@ import { useNavigate } from 'react-router-dom';
 export default function Applications() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
   const navigate = useNavigate();
 
+  // Load user role from localStorage
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role');
+    if (!storedRole) {
+      toast.error('User role not found, please login again');
+      navigate('/login');
+      return;
+    }
+    setRole(storedRole);
+  }, [navigate]);
+
+  const getAuthConfig = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Token missing, please login again');
+      navigate('/login');
+      return null;
+    }
+    return { headers: { 'x-auth-token': token } };
+  };
+
   const loadApplications = async () => {
+    const config = getAuthConfig();
+    if (!config) return;
+
     try {
-      const res = await axios.get('http://localhost:5000/api/applications/my');
+      let url = '';
+      if (role === 'student') url = 'http://localhost:5000/api/applications/my';
+      else if (role === 'tutor') url = 'http://localhost:5000/api/applications/tutor';
+      else {
+        toast.error('Invalid role');
+        return;
+      }
+
+      const res = await axios.get(url, config);
       setApplications(res.data);
     } catch (err) {
+      console.error(err);
       toast.error('Failed to load applications');
     } finally {
       setLoading(false);
@@ -21,93 +55,82 @@ export default function Applications() {
   };
 
   useEffect(() => {
-    loadApplications();
-  }, []);
+    if (role) loadApplications();
+  }, [role]);
 
-  const handleReject = async (applicationId) => {
+  const handleReject = async (id) => {
     if (!window.confirm('Are you sure you want to reject this application?')) return;
+    const config = getAuthConfig();
+    if (!config) return;
 
     try {
-      await axios.patch(`http://localhost:5000/api/applications/${applicationId}/reject`);
+      await axios.patch(`http://localhost:5000/api/applications/${id}/reject`, {}, config);
       toast.success('Application rejected');
-      loadApplications(); // Refresh list
+      loadApplications();
     } catch (err) {
+      console.error(err);
       toast.error('Failed to reject application');
     }
   };
 
-  const handleAccept = (applicationId) => {
-    // Redirect to payment page (Stripe checkout)
-    navigate(`/checkout/${applicationId}`);
+  const handleAccept = (id) => {
+    navigate(`/checkout/${id}`);
   };
 
   return (
     <DashboardLayout>
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-3xl font-bold mb-6 text-emerald-800">Tutor Applications</h2>
+        <h2 className="text-3xl font-bold mb-6 text-emerald-800">Applications</h2>
 
         {loading ? (
           <div className="flex justify-center py-10">
             <span className="loading loading-spinner loading-lg"></span>
           </div>
         ) : applications.length === 0 ? (
-          <p className="text-center text-gray-600 py-10">No tutor applications yet.</p>
+          <p className="text-center text-gray-600 py-10">
+            {role === 'student'
+              ? 'No tutor applications yet.'
+              : 'You have not applied to any tuitions yet.'}
+          </p>
         ) : (
           <div className="space-y-6">
             {applications.map((app) => (
               <div key={app._id} className="card bg-base-100 shadow-md">
-                <div className="card-body">
-                  <div className="flex items-start gap-6">
-                    {/* Tutor Photo */}
+                <div className="card-body flex flex-col md:flex-row md:items-start gap-6">
+                  {/* Tutor Info */}
+                  {role === 'student' && (
                     <div className="avatar">
                       <div className="w-24 rounded-full ring ring-emerald-600 ring-offset-2">
-                        <img
-                          src={app.tutor?.photoUrl || '/src/assets/default-avatar.jpg'}
-                          alt={app.tutor?.name}
-                        />
+                        <img src={app.tutor?.photoUrl || '/src/assets/default-avatar.jpg'} alt={app.tutor?.name} />
                       </div>
                     </div>
+                  )}
 
-                    {/* Tutor Info */}
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold">{app.tutor?.name || 'Unknown Tutor'}</h3>
-                      <p><strong>Subject:</strong> {app.tuition?.subject} - Class {app.tuition?.class}</p>
-                      <p><strong>Location:</strong> {app.tuition?.location}</p>
-                      <p><strong>Expected Salary:</strong> ৳{app.expectedSalary}/month</p>
-                      <p><strong>Message:</strong> {app.message || 'No message'}</p>
-                      <p className="mt-3">
-                        <span className={`badge ${
-                          app.status === 'approved' ? 'badge-success' :
-                          app.status === 'rejected' ? 'badge-error' :
-                          'badge-warning'
-                        } badge-lg`}>
-                          {app.status}
-                        </span>
-                      </p>
-                    </div>
+                  <div className="flex-1">
+                    {role === 'student' && <h3 className="text-2xl font-bold">{app.tutor?.name}</h3>}
+                    {role === 'tutor' && <h3 className="text-2xl font-bold">{app.tuition?.subject} - Class {app.tuition?.class}</h3>}
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-col gap-3">
-                      {app.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleAccept(app._id)}
-                            className="btn btn-success"
-                          >
-                            Accept & Pay
-                          </button>
-                          <button
-                            onClick={() => handleReject(app._id)}
-                            className="btn btn-error btn-outline"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      {app.status === 'approved' && <span className="text-success font-bold">Approved</span>}
-                      {app.status === 'rejected' && <span className="text-error font-bold">Rejected</span>}
-                    </div>
+                    <p><strong>Location:</strong> {app.tuition?.location}</p>
+                    <p><strong>Expected Salary:</strong> ৳{app.expectedSalary}/month</p>
+                    <p><strong>Message:</strong> {app.message || 'No message'}</p>
+                    <p className="mt-3">
+                      <span className={`badge ${
+                        app.status === 'approved' ? 'badge-success' :
+                        app.status === 'rejected' ? 'badge-error' :
+                        'badge-warning'
+                      } badge-lg`}>
+                        {app.status}
+                      </span>
+                    </p>
                   </div>
+
+                  {/* Action Buttons for Students */}
+                  {role === 'student' && app.status === 'pending' && (
+                    <div className="flex flex-col gap-3">
+                      <button onClick={() => handleAccept(app._id)} className="btn btn-success">Accept & Pay</button>
+                      <button onClick={() => handleReject(app._id)} className="btn btn-error btn-outline">Reject</button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

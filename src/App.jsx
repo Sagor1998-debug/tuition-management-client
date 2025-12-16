@@ -13,6 +13,8 @@ import About from './pages/About';
 import Contact from './pages/Contact'; 
 
 // Dashboard imports
+import ManageUsers from './pages/dashboard/ManageUsers';
+import ApproveTuitions from './pages/dashboard/ApproveTuitions';
 import StudentDashboard from './pages/dashboard/StudentDashboard';
 import TutorDashboard from './pages/dashboard/TutorDashboard';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
@@ -134,6 +136,10 @@ function App() {
           <Route path="/tuitions/:id" element={<TuitionDetails />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
+
+
+          <Route path="/dashboard/manage-users" element={<ManageUsers />} />
+          <Route path="/dashboard/approve-tuitions" element={<ApproveTuitions />} />
           
           {/* MAIN DASHBOARD - Role-based */}
           <Route path="/dashboard" element={
@@ -145,6 +151,7 @@ function App() {
           } />
 
           {/* Student Dashboard Sub-Pages */}
+          <Route path="/dashboard/post-tuition" element={<PostTuition />} />
           <Route path="/dashboard/my-tuitions" element={<MyTuitions />} />
           <Route path="/dashboard/post-tuition" element={<PostTuition />} />
           <Route path="/dashboard/applications" element={<Applications />} />

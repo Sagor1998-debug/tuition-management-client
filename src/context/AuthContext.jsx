@@ -3,8 +3,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom'; // ← ADD THIS
 
+// Firebase config
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -20,57 +20,75 @@ const provider = new GoogleAuthProvider();
 
 export const AuthContext = createContext();
 
+// Axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+});
+
+// Attach token to every request automatically
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // ← ADD THIS
 
+  // On page load: fetch profile if token exists
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      api.defaults.headers.Authorization = `Bearer ${token}`;
       api.get('/users/profile')
-        .then(res => {
+        .then((res) => {
           setUser(res.data);
-          // Optional: Redirect on page load if needed
+          // Save role and name to localStorage
+          localStorage.setItem('role', res.data.role);
+          localStorage.setItem('name', res.data.name);
         })
-        .catch(() => localStorage.removeItem('token'))
+        .catch(() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('role');
+          localStorage.removeItem('name');
+          setUser(null);
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
   }, []);
 
-  const handleSuccessfulAuth = (userData) => {
+  const handleSuccessfulAuth = (userData, token) => {
     setUser(userData);
-    toast.success('Welcome back!');
-
-    // ROLE-BASED REDIRECT
-    if (userData.role === 'admin') {
-      navigate('/dashboard'); // or '/admin-dashboard' if separate
-    } else if (userData.role === 'tutor') {
-      navigate('/dashboard');
-    } else {
-      navigate('/dashboard'); // student
-    }
+    localStorage.setItem('token', token);
+    localStorage.setItem('role', userData.role);
+    localStorage.setItem('name', userData.name);
+    toast.success(`Welcome back, ${userData.name}!`);
   };
 
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', res.data.token);
-    api.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-    handleSuccessfulAuth(res.data.user);
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      handleSuccessfulAuth(res.data.user, res.data.token);
+      return res.data.user;
+    } catch (err) {
+      toast.error(err.response?.data?.msg || 'Login failed');
+      throw err;
+    }
   };
 
   const register = async (data) => {
-    const res = await api.post('/auth/register', data);
-    localStorage.setItem('token', res.data.token);
-    api.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-    handleSuccessfulAuth(res.data.user);
+    try {
+      const res = await api.post('/auth/register', data);
+      handleSuccessfulAuth(res.data.user, res.data.token);
+      return res.data.user;
+    } catch (err) {
+      toast.error(err.response?.data?.msg || 'Registration failed');
+      throw err;
+    }
   };
 
   const googleLogin = async () => {
@@ -80,27 +98,27 @@ export const AuthProvider = ({ children }) => {
       const res = await api.post('/auth/google', {
         name: displayName,
         email,
-        photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png'
+        photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
       });
-      localStorage.setItem('token', res.data.token);
-      api.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-      handleSuccessfulAuth(res.data.user);
+      handleSuccessfulAuth(res.data.user, res.data.token);
+      return res.data.user;
     } catch (err) {
       console.error(err);
       toast.error('Google login failed');
+      throw err;
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    delete api.defaults.headers.Authorization;
+    localStorage.removeItem('role');
+    localStorage.removeItem('name');
     setUser(null);
     toast.success('Logged out successfully');
-    navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, googleLogin, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, googleLogin, logout, api }}>
       {children}
     </AuthContext.Provider>
   );
