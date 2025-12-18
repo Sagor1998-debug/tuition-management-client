@@ -1,38 +1,74 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 export default function StudentDashboard() {
+  const [stats, setStats] = useState({
+    myTuitions: 0,
+    applications: 0,
+    totalSpent: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+
+        const [tuitionsRes, appsRes, paymentsRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/tuitions/my', config),
+          axios.get('http://localhost:5000/api/applications/my', config),
+          axios.get('http://localhost:5000/api/payments/history', config)
+        ]);
+
+        const totalSpent = paymentsRes.data.reduce((sum, p) => sum + p.amount, 0);
+
+        setStats({
+          myTuitions: tuitionsRes.data.length,
+          applications: appsRes.data.length,
+          totalSpent
+        });
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) return <p className="text-center py-20">Loading dashboard...</p>;
+
   return (
-    <div className="text-center py-20">
-      <h2 className="text-4xl font-bold mb-8">Student Dashboard</h2>
+    <div className="py-12">
+      <h2 className="text-5xl font-bold text-center mb-10">Student Dashboard</h2>
 
-      <div className=" grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h3 className="text-2xl">My Tuitions</h3>
-            <p className="text-5xl font-bold text-primary">3</p>
+          <div className="card-body text-center">
+            <h3 className="text-xl">My Tuitions</h3>
+            <p className="text-5xl font-bold text-purple-600">{stats.myTuitions}</p>
           </div>
         </div>
 
         <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h3 className="text-2xl">Applications</h3>
-            <p className="text-5xl font-bold text-secondary">7</p>
+          <div className="card-body text-center">
+            <h3 className="text-xl">Applications</h3>
+            <p className="text-5xl font-bold text-pink-600">{stats.applications}</p>
           </div>
         </div>
 
         <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h3 className="text-2xl">Total Spent</h3>
-            <p className="text-5xl font-bold text-accent">৳24,000</p>
+          <div className="card-body text-center">
+            <h3 className="text-xl">Total Spent</h3>
+            <p className="text-5xl font-bold text-emerald-600">৳{stats.totalSpent.toLocaleString()}</p>
           </div>
         </div>
       </div>
 
-      <div className="text-center mt-12">
-        <Link
-          to="/dashboard/post-tuition"
-          className="btn btn-primary btn-lg px-10"
-        >
+      <div className="text-center">
+        <Link to="/dashboard/post-tuition" className="btn btn-primary btn-lg px-12">
           Post New Tuition
         </Link>
       </div>

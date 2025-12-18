@@ -8,6 +8,7 @@ export default function MyTuitions() {
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function MyTuitions() {
         config
       );
       toast.success('Tuition deleted successfully');
-      loadTuitions();
+      loadTuitions(); // refresh list
     } catch (err) {
       toast.error('Failed to delete');
     }
@@ -70,7 +71,10 @@ export default function MyTuitions() {
     <DashboardLayout>
       <div className="bg-white rounded-xl shadow-lg p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-emerald-800">My Tuitions</h2>
+          <h2 className="text-3xl font-bold text-emerald-800">
+            My Tuitions
+          </h2>
+
           <Link to="/dashboard/post-tuition" className="btn btn-success">
             Post New Tuition
           </Link>
@@ -119,6 +123,7 @@ export default function MyTuitions() {
                         </span>
                       </p>
                     </div>
+
                     <div className="flex gap-2 ml-4">
                       <button
                         onClick={() => handleEdit(t)}
@@ -134,6 +139,7 @@ export default function MyTuitions() {
                       </button>
                     </div>
                   </div>
+
                   <div className="card-actions justify-end mt-4">
                     <Link
                       to={`/tuitions/${t._id}`}

@@ -4,7 +4,9 @@ import toast from 'react-hot-toast';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
-// Firebase config
+/* =========================
+   FIREBASE CONFIG
+========================= */
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -18,14 +20,19 @@ initializeApp(firebaseConfig);
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
+/* =========================
+   CONTEXT
+========================= */
 export const AuthContext = createContext();
 
-// Axios instance
+/* =========================
+   AXIOS INSTANCE
+========================= */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
-// Attach token to every request automatically
+// Attach token automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -34,26 +41,34 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+/* =========================
+   PROVIDER
+========================= */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On page load: fetch profile if token exists
+  /* =========================
+     LOAD USER ON REFRESH
+  ========================= */
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      api.get('/users/profile')
+    const storedToken = localStorage.getItem('token');
+
+    if (storedToken) {
+      setToken(storedToken);
+
+      api
+        .get('/users/profile')
         .then((res) => {
           setUser(res.data);
-          // Save role and name to localStorage
           localStorage.setItem('role', res.data.role);
           localStorage.setItem('name', res.data.name);
         })
         .catch(() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('role');
-          localStorage.removeItem('name');
+          localStorage.clear();
           setUser(null);
+          setToken(null);
         })
         .finally(() => setLoading(false));
     } else {
@@ -61,65 +76,77 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const handleSuccessfulAuth = (userData, token) => {
+  /* =========================
+     AUTH HANDLER
+  ========================= */
+  const handleSuccessfulAuth = (userData, jwtToken) => {
     setUser(userData);
-    localStorage.setItem('token', token);
+    setToken(jwtToken);
+    localStorage.setItem('token', jwtToken);
     localStorage.setItem('role', userData.role);
     localStorage.setItem('name', userData.name);
     toast.success(`Welcome back, ${userData.name}!`);
   };
 
+  /* =========================
+     EMAIL LOGIN
+  ========================= */
   const login = async (email, password) => {
-    try {
-      const res = await api.post('/auth/login', { email, password });
-      handleSuccessfulAuth(res.data.user, res.data.token);
-      return res.data.user;
-    } catch (err) {
-      toast.error(err.response?.data?.msg || 'Login failed');
-      throw err;
-    }
+    const res = await api.post('/auth/login', { email, password });
+    handleSuccessfulAuth(res.data.user, res.data.token);
+    return res.data.user;
   };
 
+  /* =========================
+     REGISTER
+  ========================= */
   const register = async (data) => {
-    try {
-      const res = await api.post('/auth/register', data);
-      handleSuccessfulAuth(res.data.user, res.data.token);
-      return res.data.user;
-    } catch (err) {
-      toast.error(err.response?.data?.msg || 'Registration failed');
-      throw err;
-    }
+    const res = await api.post('/auth/register', data);
+    handleSuccessfulAuth(res.data.user, res.data.token);
+    return res.data.user;
   };
 
+  /* =========================
+     GOOGLE LOGIN
+  ========================= */
   const googleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const { displayName, email, photoURL } = result.user;
-      const res = await api.post('/auth/google', {
-        name: displayName,
-        email,
-        photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
-      });
-      handleSuccessfulAuth(res.data.user, res.data.token);
-      return res.data.user;
-    } catch (err) {
-      console.error(err);
-      toast.error('Google login failed');
-      throw err;
-    }
+    const result = await signInWithPopup(auth, provider);
+    const { displayName, email, photoURL } = result.user;
+
+    const res = await api.post('/auth/google', {
+      name: displayName,
+      email,
+      photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
+    });
+
+    handleSuccessfulAuth(res.data.user, res.data.token);
+    return res.data.user;
   };
 
+  /* =========================
+     LOGOUT
+  ========================= */
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('name');
+    localStorage.clear();
     setUser(null);
+    setToken(null);
     toast.success('Logged out successfully');
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, googleLogin, logout, api }}>
-      {children}
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        login,
+        register,
+        googleLogin,
+        logout,
+        api,
+      }}
+    >
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

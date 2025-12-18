@@ -1,12 +1,21 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect, createContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+
+// Context to share notifications across dashboard pages
+export const NotificationContext = createContext();
 
 export default function DashboardLayout({ children }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [showNotifications, setShowNotifications] = useState(false);
 
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Logout function
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
@@ -29,7 +38,6 @@ export default function DashboardLayout({ children }) {
         { name: 'Revenue History', path: '/dashboard/revenue' },
       ];
     } else {
-      // Student
       return [
         { name: 'Dashboard', path: '/dashboard' },
         { name: 'My Tuitions', path: '/dashboard/my-tuitions' },
@@ -44,151 +52,203 @@ export default function DashboardLayout({ children }) {
 
   const sidebarLinks = getSidebarLinks();
 
-  // Sample notifications
-  const notifications = [
-    { id: 1, text: "New application from Md. Rahman", time: "2 mins ago", type: "application" },
-    { id: 2, text: "Payment received: ৳8,000", time: "1 hour ago", type: "payment" },
-    { id: 3, text: "Your tuition was approved", time: "Yesterday", type: "success" },
-  ];
+  // Authorization config for axios
+  const getAuthConfig = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Please login again');
+      navigate('/login');
+      return null;
+    }
+    return { headers: { 'x-auth-token': token } };
+  };
 
-  const unreadCount = notifications.length;
+  // Fetch notifications dynamically (for example, approved tuitions)
+  const loadNotifications = async () => {
+    const config = getAuthConfig();
+    if (!config) return;
+
+    try {
+      // Example: fetch user's tuitions and treat "approved" tuitions as notifications
+      const res = await axios.get('http://localhost:5000/api/tuitions/my', config);
+
+      // Map tuitions to notifications
+      const notif = res.data
+        .filter((t) => t.status === 'approved')
+        .map((t) => ({
+          id: t._id,
+          text: `Your tuition "${t.subject}" was approved`,
+          time: 'Just now',
+          type: 'success',
+          read: false,
+        }));
+
+      setNotifications(notif);
+      setUnreadCount(notif.filter((n) => !n.read).length);
+    } catch (err) {
+      toast.error('Failed to load notifications');
+      console.error(err);
+    }
+  };
+
+  // Mark notification as read
+  const markAsRead = (id) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+    setUnreadCount((prev) => prev - 1);
+  };
+
+  useEffect(() => {
+    loadNotifications();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-base-200 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-teal-600 text-white flex flex-col">
-        <div className="p-6 border-b border-emerald-700">
-          <h2 className="text-2xl font-bold">TuitionHub</h2>
-          <p className="text-emerald-300 text-sm mt-1">
-            {user?.role ? user.role.toUpperCase() + ' PANEL' : 'DASHBOARD'}
-          </p>
-        </div>
+    <NotificationContext.Provider value={{ notifications, unreadCount, loadNotifications, markAsRead }}>
+      <div className="min-h-screen bg-base-200 flex">
+        {/* Sidebar */}
+        <div className="w-64 bg-teal-600 text-white flex flex-col">
+          <div className="p-6 border-b border-emerald-700">
+            <h2 className="text-2xl font-bold">eTuitionBd</h2>
+            <p className="text-emerald-300 text-sm mt-1">
+              {user?.role ? user.role.toUpperCase() + ' PANEL' : 'DASHBOARD'}
+            </p>
+          </div>
 
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {sidebarLinks.map((link) => (
-              <li key={link.path}>
-                <Link
-                  to={link.path}
-                  className="block py-3 px-4 rounded-lg hover:bg-emerald-700 transition font-medium"
-                >
-                  {link.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="p-4 border-t border-emerald-700">
-          <button
-            onClick={handleLogout}
-            className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-medium transition"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Topbar */}
-        <header className="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-emerald-800">
-            Welcome, {user?.name || 'User'}
-          </h1>
-
-          <div className="flex items-center gap-6">
-            {/* Notification Bell */}
-            <div className="dropdown dropdown-end">
-              <label
-                tabIndex={0}
-                className="btn btn-ghost btn-circle relative cursor-pointer"
-                onClick={() => setShowNotifications(!showNotifications)}
-              >
-                <div className="indicator">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-7 w-7"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+          <nav className="flex-1 p-4">
+            <ul className="space-y-2">
+              {sidebarLinks.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className="block py-3 px-4 rounded-lg hover:bg-emerald-700 transition font-medium"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                    />
-                  </svg>
-                  {unreadCount > 0 && (
-                    <span className="badge badge-error badge-sm indicator-item">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </div>
-              </label>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-              {/* Notification Dropdown */}
-              {showNotifications && (
-                <ul
+          <div className="p-4 border-t border-emerald-700">
+            <button
+              onClick={handleLogout}
+              className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-medium transition"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Topbar */}
+          <header className="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-emerald-800">
+              Welcome, {user?.name || 'User'}
+            </h1>
+
+            <div className="flex items-center gap-6">
+              {/* Notification Bell */}
+              <div className="dropdown dropdown-end">
+                <label
                   tabIndex={0}
-                  className="menu menu-md dropdown-content mt-3 z-50 p-4 shadow bg-base-100 rounded-box w-96"
-                  onBlur={() => setShowNotifications(false)}
+                  className="btn btn-ghost btn-circle relative cursor-pointer"
+                  onClick={() => setShowNotifications(!showNotifications)}
                 >
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <h3 className="text-lg font-bold">Notifications</h3>
+                  <div className="indicator">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-7 w-7"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                      />
+                    </svg>
+                    {unreadCount > 0 && (
+                      <span className="badge badge-error badge-sm indicator-item">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
                   </div>
-                  {notifications.length === 0 ? (
-                    <li className="p-4 text-center text-gray-500">No new notifications</li>
-                  ) : (
-                    notifications.map((notif) => (
-                      <li key={notif.id} className="border-b border-gray-100 last:border-0">
-                        <a className="block px-4 py-4 hover:bg-gray-50 transition">
-                          <div className="flex items-center gap-3">
-                            {notif.type === 'application' && (
-                              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            )}
-                            {notif.type === 'payment' && (
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                            )}
-                            {notif.type === 'success' && (
-                              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                            )}
-                            <div className="flex-1">
-                              <p className="font-medium">{notif.text}</p>
-                              <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
-                            </div>
-                          </div>
-                        </a>
-                      </li>
-                    ))
-                  )}
-                  <div className="p-3 text-center">
-                    <button className="text-sm text-emerald-600 hover:underline">
-                      View all notifications
-                    </button>
-                  </div>
-                </ul>
-              )}
-            </div>
+                </label>
 
-            {/* Profile Avatar */}
-            <div className="avatar">
-              <div className="w-12 rounded-full ring ring-emerald-600 ring-offset-base-100 ring-offset-2">
-                <img
-                  src={user?.photoUrl || '/src/assets/default-avatar.jpg'}
-                  alt="Profile"
-                />
+                {/* Notification Dropdown */}
+                {showNotifications && (
+                  <ul
+                    tabIndex={0}
+                    className="menu menu-md dropdown-content mt-3 z-50 p-4 shadow bg-base-100 rounded-box w-96"
+                    onBlur={() => setShowNotifications(false)}
+                  >
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <h3 className="text-lg font-bold">Notifications</h3>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <li className="p-4 text-center text-gray-500">
+                        No new notifications
+                      </li>
+                    ) : (
+                      notifications.map((notif) => (
+                        <li
+                          key={notif.id}
+                          className="border-b border-gray-100 last:border-0"
+                        >
+                          <a
+                            className="block px-4 py-4 hover:bg-gray-50 transition cursor-pointer"
+                            onClick={() => markAsRead(notif.id)}
+                          >
+                            <div className="flex items-center gap-3">
+                              {notif.type === 'application' && (
+                                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                              )}
+                              {notif.type === 'payment' && (
+                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                              )}
+                              {notif.type === 'success' && (
+                                <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                              )}
+                              <div className="flex-1">
+                                <p className="font-medium">{notif.text}</p>
+                                <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
+                              </div>
+                            </div>
+                          </a>
+                        </li>
+                      ))
+                    )}
+                    <div className="p-3 text-center">
+                      <button className="text-sm text-emerald-600 hover:underline">
+                        View all notifications
+                      </button>
+                    </div>
+                  </ul>
+                )}
+              </div>
+
+              {/* Profile Avatar */}
+              <div className="avatar">
+                <div className="w-12 rounded-full ring ring-emerald-600 ring-offset-base-100 ring-offset-2">
+                  <img
+                    src={user?.photoUrl || '/src/assets/default-avatar.jpg'}
+                    alt="Profile"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Page Content */}
-        <main className="flex-1 p-8 bg-base-200 overflow-y-auto">
-          {children}
-        </main>
+          {/* Page Content */}
+          <main className="flex-1 p-8 bg-base-200 overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </NotificationContext.Provider>
   );
 }

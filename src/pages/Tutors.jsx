@@ -138,7 +138,7 @@ export default function Tutors() {
                     alt={tutor.name}
                     className=" w-28 h-28 rounded-full mb-4 object-cover border-4 border-emerald-600"
                   />
-                  <h3 className="text-xl font-bold text-rose-900">{tutor.name}</h3>
+                  <h3 className="text-xl font-bold text-rose-900 ">{tutor.name}</h3>
                   <p className="text-sm text-rose-900 mt-2">{tutor.qualifications || 'No qualifications listed'}</p>
                   <p className="text-sm text-rose-900 mt-1">{tutor.experience || 'Not specified'}</p>
                   <Link to={`/tutor/${tutor._id}`} className="bg-transparent hover:bg-purple-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-purple-600 hover:border-transparent rounded">

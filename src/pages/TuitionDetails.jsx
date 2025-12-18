@@ -86,8 +86,8 @@ export default function TuitionDetails() {
   );
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <div className="card lg:card-side bg-base-100 shadow-xl max-w-5xl mx-auto">
+    <div className="bg-red-100 container mx-auto py-10 px-4">
+      <div className="bg-rose-300 card lg:card-side shadow-xl max-w-5xl mx-auto">
         <div className="card-body">
           <div className="flex justify-between items-start mb-4">
             <h2 className="card-title text-4xl text-emerald-800">
@@ -97,7 +97,7 @@ export default function TuitionDetails() {
             {user && (
               <button
                 onClick={handleBookmark}
-                className={`btn btn-lg ${isBookmarked ? 'btn-warning' : 'btn-outline'} hover:btn-warning`}
+                className={` bg-red-600 text-white btn btn-lg ${isBookmarked ? 'btn-warning' : 'btn-outline'} hover:btn-warning`}
               >
                 {isBookmarked ? 'Bookmarked' : 'Bookmark'}
               </button>
@@ -117,7 +117,7 @@ export default function TuitionDetails() {
               <>
                 <button 
                   onClick={() => setShowModal(true)} 
-                  className="btn btn-success btn-lg"
+                  className="bg-rose-600 text-white btn btn-success btn-lg"
                 >
                   Apply for this Tuition
                 </button>
@@ -131,7 +131,7 @@ export default function TuitionDetails() {
                 {tuition?.approvedTutor === user?.id && (
                   <button 
                     onClick={() => navigate(`/messages/${tuition?.postedBy}`)} 
-                    className="btn btn-info"
+                    className="bg-green-600 text-white btn btn-info"
                   >
                     Chat with Student
                   </button>

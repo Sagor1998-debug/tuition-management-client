@@ -32,7 +32,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center py-12">
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
-        <div className="card-body">
+        <div className=" bg-emerald-200  rounded-xl card-body">
           <h2 className="text-3xl font-bold text-center text-emerald-800">Create Account</h2>
           <form onSubmit={handleSubmit} className="space-y-6 mt-6">
             <div>

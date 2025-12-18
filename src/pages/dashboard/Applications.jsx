@@ -117,7 +117,7 @@ export default function Applications() {
         <h2 className="text-3xl font-bold mb-6 text-emerald-800">Applications</h2>
 
         {loading ? (
-          <div className="flex justify-center py-10">
+          <div className="rounded-xl flex justify-center py-10">
             <span className="loading loading-spinner loading-lg"></span>
           </div>
         ) : applications.length === 0 ? (
@@ -161,10 +161,10 @@ export default function Applications() {
                   {/* Action Buttons for Students */}
                   {role === 'student' && app.status === 'pending' && (
                     <div className="flex flex-col gap-3">
-                      <button onClick={() => handleAccept(app._id)} className="btn btn-success">
+                      <button onClick={() => handleAccept(app._id)} className="bg-lime-700 text-white btn btn-success">
                         Accept & Pay
                       </button>
-                      <button onClick={() => handleReject(app._id)} className="btn btn-error btn-outline">
+                      <button onClick={() => handleReject(app._id)} className="bg-red-700 text-white btn btn-error btn-outline">
                         Reject
                       </button>
                     </div>

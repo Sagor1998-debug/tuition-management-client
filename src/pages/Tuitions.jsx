@@ -44,11 +44,11 @@ export default function Tuitions() {
   }, [search, subject, location, minSalary, maxSalary, sort, page]);
 
   return (
-    <div className="bg-slate-300 rounded-xl container mx-auto py-10 px-4">
+    <div className="bg-fuchsia-200 rounded-xl container mx-auto py-10 px-4">
       <h1 className="text-4xl font-bold text-center mb-10 text-emerald-800">All Tuitions</h1>
 
       {/* Filters & Search */}
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div className="bg-stone-100 rounded-xl shadow-lg p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <input 
             type="text" 
@@ -104,7 +104,7 @@ export default function Tuitions() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {tuitions.map(t => (
-            <div key={t._id} className="card bg-rose-200 shadow-xl">
+            <div key={t._id} className="card bg-emerald-200 shadow-xl">
               <div className="card-body">
                 <h3 className="card-title text-emerald-700">{t.subject} - Class {t.class}</h3>
                 <p>Location: {t.location}</p>
