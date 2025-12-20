@@ -20,8 +20,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200">
-      <div className="card w-96 bg-base-100 shadow-2xl">
+    <div className="rounded-xl min-h-screen flex items-center justify-center bg-blue-300 shadow-lg shadow-blue-500/50 ...">
+      <div className=" bg-emerald-500 rounded-xl card w-96 bg-base-100 shadow-2xl">
         <div className="card-body">
           <h2 className="text-3xl font-bold text-center mb-8">Welcome Back!</h2>
           

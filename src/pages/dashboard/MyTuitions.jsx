@@ -143,7 +143,7 @@ export default function MyTuitions() {
                   <div className="card-actions justify-end mt-4">
                     <Link
                       to={`/tuitions/${t._id}`}
-                      className="btn btn-sm btn-primary"
+                      className="bg-red-400 btn btn-sm btn-primary"
                     >
                       View Details
                     </Link>
