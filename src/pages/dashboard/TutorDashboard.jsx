@@ -68,7 +68,7 @@ export default function TutorDashboard() {
       </div>
 
       <div className="text-center">
-        <Link to="/tuitions" className="btn btn-success btn-lg px-12">
+        <Link to="/tuitions" className="bg-indigo-500 shadow-lg shadow-indigo-500/50 ... btn btn-success btn-lg px-12">
           Find New Students
         </Link>
       </div>

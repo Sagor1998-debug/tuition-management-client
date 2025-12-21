@@ -208,7 +208,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-red-500 shadow-lg shadow-red-500/50 text-center bg-white p-8 rounded-xl shadow-lg"
+                className="bg-red-500 shadow-lg shadow-red-500/50 text-center p-8 rounded-xl shadow-lg"
               >
                 <div className="text-6xl mb-4">{feat.icon}</div>
                 <h2 className="text-xl font-bold">{feat.title}</h2>

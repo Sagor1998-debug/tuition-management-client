@@ -45,30 +45,30 @@ export default function StudentDashboard() {
       <h2 className="text-5xl font-bold text-center mb-10">Student Dashboard</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div className="card bg-base-100 shadow-xl">
+        <div className="rounded-xl h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 ... shadow-xl">
           <div className="card-body text-center">
-            <h3 className="text-xl">My Tuitions</h3>
+            <h3 className="mt-6 text-xl">My Tuitions</h3>
             <p className="text-5xl font-bold text-purple-600">{stats.myTuitions}</p>
           </div>
         </div>
 
-        <div className="card bg-base-100 shadow-xl">
+        <div className="rounded-xl card h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 ...  shadow-xl">
           <div className="card-body text-center">
-            <h3 className="text-xl">Applications</h3>
+            <h3 className="mt-6 text-xl">Applications</h3>
             <p className="text-5xl font-bold text-pink-600">{stats.applications}</p>
           </div>
         </div>
 
-        <div className="card bg-base-100 shadow-xl">
+        <div className="rounded-xl card h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 ...  shadow-xl">
           <div className="card-body text-center">
-            <h3 className="text-xl">Total Spent</h3>
-            <p className="text-5xl font-bold text-emerald-600">৳{stats.totalSpent.toLocaleString()}</p>
+            <h3 className="mt-6 text-xl">Total Spent</h3>
+            <p className="text-5xl font-bold text-yellow-600">৳{stats.totalSpent.toLocaleString()}</p>
           </div>
         </div>
       </div>
 
-      <div className="text-center">
-        <Link to="/dashboard/post-tuition" className="btn btn-primary btn-lg px-12">
+      <div className=" text-center">
+        <Link to="/dashboard/post-tuition" className="bg-blue-500 shadow-lg shadow-blue-500/50 ... btn btn-primary btn-lg px-12">
           Post New Tuition
         </Link>
       </div>

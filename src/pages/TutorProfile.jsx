@@ -92,14 +92,14 @@ export default function TutorProfile() {
               {tutor.name}
             </h2>
 
-            <p><strong>Email:</strong> {tutor.email}</p>
-            <p><strong>Qualifications:</strong> {tutor.qualifications || 'Not provided'}</p>
-            <p><strong>Experience:</strong> {tutor.experience || 0} years</p>
+            <p  className="items-center"><strong>Email:</strong> {tutor.email}</p>
+            <p className="items-center"><strong>Qualifications:</strong> {tutor.qualifications || 'Not provided'}</p>
+            <p className="items-center"><strong>Experience:</strong> {tutor.experience || 0} years</p>
 
             <div className="mt-6">
               <button
                 onClick={handleHireTutor}
-                className="btn btn-success btn-lg w-full"
+                className="items-center bg-rose-500 shadow-lg shadow-rose-500/50 ... btn btn-success btn-lg w-32"
               >
                 Hire This Tutor
               </button>

@@ -100,7 +100,7 @@ export default function AdminDashboard() {
           Manage Users
         </Link>
 
-        <Link to="/dashboard/approve-tuitions" className="btn btn-error btn-lg shadow-lg hover:shadow-2xl">
+        <Link to="/dashboard/approve-tuitions" className="bg-indigo-500 shadow-lg shadow-indigo-500/50 ... btn btn-error btn-lg shadow-lg hover:shadow-2xl">
           Approve Tuitions
         </Link>
       </div>
