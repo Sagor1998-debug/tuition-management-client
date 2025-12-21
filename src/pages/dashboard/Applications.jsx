@@ -38,7 +38,9 @@ export default function Applications() {
     try {
       let url = '';
       if (role === 'student') url = 'http://localhost:5000/api/applications/my';
-      else if (role === 'tutor') url = 'http://localhost:5000/api/applications/tutor';
+     else if (role === 'tutor')
+  url = 'http://localhost:5000/api/applications/my-applications';
+
       else {
         toast.error('Invalid role');
         return;
@@ -142,7 +144,7 @@ export default function Applications() {
 
                   <div className="flex-1">
                     {role === 'student' && <h3 className="text-2xl font-bold">{app.tutor?.name}</h3>}
-                    {role === 'tutor' && <h3 className="text-2xl font-bold">{app.tuition?.subject} - Class {app.tuition?.class}</h3>}
+                    {role === 'tutor' && <h3 className="items-center text-2xl font-bold">{app.tuition?.subject} - Class {app.tuition?.class}</h3>}
 
                     <p><strong>Location:</strong> {app.tuition?.location}</p>
                     <p><strong>Expected Salary:</strong> ৳{app.expectedSalary}/month</p>

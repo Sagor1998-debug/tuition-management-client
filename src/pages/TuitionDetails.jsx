@@ -86,7 +86,7 @@ export default function TuitionDetails() {
   );
 
   return (
-    <div className="bg-red-100 container mx-auto py-10 px-4">
+    <div className=" bg-red-100 container mx-auto py-10 px-4">
       <div className="bg-rose-300 card lg:card-side shadow-xl max-w-5xl mx-auto">
         <div className="card-body">
           <div className="flex justify-between items-start mb-4">
@@ -145,12 +145,12 @@ export default function TuitionDetails() {
       {/* Application Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 rounded-xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
-            <div className="p-8">
+          <div className="bg-black-400 rounded-xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div className="bg-emerald-600 p-8">
               <h3 className="text-3xl font-bold mb-6 text-emerald-800">Apply for Tuition</h3>
-              <form onSubmit={handleApply} className="space-y-6">
+              <form onSubmit={handleApply} className=" space-y-6">
                 <div>
-                  <label className="label font-medium">Name</label>
+                  <label className=" label font-medium">Name</label>
                   <input value={user?.name || ''} className="input input-bordered w-full" disabled />
                 </div>
                 <div>
@@ -175,8 +175,8 @@ export default function TuitionDetails() {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <button type="submit" className="btn btn-success flex-1 text-lg">Submit Application</button>
-                  <button type="button" onClick={() => setShowModal(false)} className="btn btn-ghost flex-1">Cancel</button>
+                  <button type="submit" className="bg-red-500 btn btn-success flex-1 text-lg">Submit Application</button>
+                  <button type="button" onClick={() => setShowModal(false)} className="bg-red-500 btn btn-ghost flex-1">Cancel</button>
                 </div>
               </form>
             </div>

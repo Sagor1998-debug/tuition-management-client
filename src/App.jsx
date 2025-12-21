@@ -12,10 +12,10 @@ import Tutors from './pages/Tutors';
 import TutorProfile from './pages/TutorProfile';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import Footer from './components/Footer'; // adjust the path if needed
-
+import Footer from './components/Footer';
 
 // Dashboard imports
+import DashboardHome from './pages/DashboardHome';
 import ManageUsers from './pages/dashboard/ManageUsers';
 import ApproveTuitions from './pages/dashboard/ApproveTuitions';
 import StudentDashboard from './pages/dashboard/StudentDashboard';
@@ -29,16 +29,16 @@ import ProfileSettings from './pages/dashboard/ProfileSettings';
 import Reports from './pages/dashboard/Reports';
 
 function App() {
-  const { user, loading } = useContext(AuthContext);
+  const { user, loading, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();             // clear user state and token
     setProfileOpen(false);
-    navigate('/login');
+    navigate('/login');   // redirect to login page
   };
 
   if (loading) {
@@ -51,7 +51,6 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-rose-200">
-
       {/* ================= NAVBAR ================= */}
       <header className="bg-emerald-800 text-white shadow-xl sticky top-0 z-50">
         <div className="container mx-auto flex justify-between items-center px-6 py-4">
@@ -135,61 +134,46 @@ function App() {
               ☰
             </button>
 
-        
-
             {mobileOpen && (
-  <div className="absolute right-0 mt-3 w-72 bg-white text-black rounded-xl shadow-xl p-4">
-    <div className="grid grid-cols-2 gap-3 text-sm font-medium">
+              <div className="absolute right-0 mt-3 w-72 bg-white text-black rounded-xl shadow-xl p-4">
+                <div className="grid grid-cols-2 gap-3 text-sm font-medium">
+                  <Link onClick={() => setMobileOpen(false)} to="/" className="mobile-item">Home</Link>
+                  <Link onClick={() => setMobileOpen(false)} to="/tuitions" className="mobile-item">Tuitions</Link>
+                  <Link onClick={() => setMobileOpen(false)} to="/tutors" className="mobile-item">Tutors</Link>
+                  <Link onClick={() => setMobileOpen(false)} to="/about" className="mobile-item">About</Link>
+                  <Link onClick={() => setMobileOpen(false)} to="/contact" className="mobile-item">Contact</Link>
 
-      <Link onClick={() => setMobileOpen(false)} to="/" className="mobile-item">
-        Home
-      </Link>
-      <Link onClick={() => setMobileOpen(false)} to="/tuitions" className="mobile-item">
-        Tuitions
-      </Link>
-      <Link onClick={() => setMobileOpen(false)} to="/tutors" className="mobile-item">
-        Tutors
-      </Link>
-      <Link onClick={() => setMobileOpen(false)} to="/about" className="mobile-item">
-        About
-      </Link>
-      <Link onClick={() => setMobileOpen(false)} to="/contact" className="mobile-item">
-        Contact
-      </Link>
+                  {user ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setMobileOpen(false);
+                          navigate('/dashboard');
+                        }}
+                        className="mobile-item"
+                      >
+                        Dashboard
+                      </button>
 
-      {user ? (
-        <>
-          <button
-            onClick={() => {
-              setMobileOpen(false);
-              navigate('/dashboard');
-            }}
-            className="mobile-item"
-          >
-            Dashboard
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="mobile-item text-red-600"
-          >
-            Logout
-          </button>
-        </>
-      ) : (
-        <>
-          <Link onClick={() => setMobileOpen(false)} to="/login" className="mobile-item">
-            Login
-          </Link>
-          <Link onClick={() => setMobileOpen(false)} to="/register" className="mobile-item font-semibold">
-            Register
-          </Link>
-        </>
-      )}
-    </div>
-  </div>
-)}
-
+                      <button
+                        onClick={() => {
+                          setMobileOpen(false);
+                          handleLogout();
+                        }}
+                        className="mobile-item text-red-600"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link onClick={() => setMobileOpen(false)} to="/login" className="mobile-item">Login</Link>
+                      <Link onClick={() => setMobileOpen(false)} to="/register" className="mobile-item font-semibold">Register</Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -202,7 +186,7 @@ function App() {
           <Route path="/tuitions/:id" element={<TuitionDetails />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
-
+          
           <Route
             path="/dashboard"
             element={
@@ -214,15 +198,15 @@ function App() {
             }
           />
 
-          <Route path="/dashboard/manage-users" element={<ManageUsers />} />
-          <Route path="/dashboard/approve-tuitions" element={<ApproveTuitions />} />
-          <Route path="/dashboard/post-tuition" element={<PostTuition />} />
-          <Route path="/dashboard/my-tuitions" element={<MyTuitions />} />
-          <Route path="/dashboard/applications" element={<Applications />} />
-          <Route path="/dashboard/payments" element={<PaymentHistory />} />
-          <Route path="/dashboard/profile" element={<ProfileSettings />} />
-          <Route path="/dashboard/reports" element={<Reports />} />
-
+          <Route path="/dashboard/manage-users" element={user ? <ManageUsers /> : <Navigate to="/login" />} />
+          <Route path="/dashboard/approve-tuitions" element={user ? <ApproveTuitions /> : <Navigate to="/login" />} />
+          <Route path="/dashboard/post-tuition" element={user ? <PostTuition /> : <Navigate to="/login" />} />
+          <Route path="/dashboard/my-tuitions" element={user ? <MyTuitions /> : <Navigate to="/login" />} />
+          <Route path="/dashboard/applications" element={user ? <Applications /> : <Navigate to="/login" />} />
+          <Route path="/dashboard/payments" element={user ? <PaymentHistory /> : <Navigate to="/login" />} />
+          <Route path="/dashboard/profile" element={user ? <ProfileSettings /> : <Navigate to="/login" />} />
+          <Route path="/dashboard/reports" element={user ? <Reports /> : <Navigate to="/login" />} />
+         <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/tutors" element={<Tutors />} />
           <Route path="/tutor/:id" element={<TutorProfile />} />
           <Route path="/about" element={<About />} />
@@ -231,8 +215,8 @@ function App() {
         </Routes>
       </main>
 
-      {/* FOOTER (UNCHANGED) */}
-      <footer className="bg-emerald-600 text-white py-12 mt-auto">
+      {/* ================= FOOTER ================= */}
+        <footer className="bg-emerald-600 text-white py-12 mt-auto">
   <div className="container mx-auto px-6">
     <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
       
