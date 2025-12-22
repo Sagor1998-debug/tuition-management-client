@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, createContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import api from '../api/axios'; // <-- use shared axios instance
+import api from '../api/axios'; // ✅ use shared axios instance
 
 export const NotificationContext = createContext();
 
@@ -52,7 +52,8 @@ export default function DashboardLayout({ children }) {
 
   const loadNotifications = async () => {
     try {
-      const res = await api.get('/tuitions/my'); // <-- use api instance
+      // ✅ Use deployed backend route
+      const res = await api.get('/dev/tuitions/my'); 
       const notif = res.data
         .filter(t => t.status === 'approved')
         .map(t => ({
@@ -85,15 +86,7 @@ export default function DashboardLayout({ children }) {
       <div className="min-h-screen bg-base-200 flex flex-col md:flex-row">
 
         {/* SIDEBAR */}
-        <aside className="
-          w-full
-          md:w-64
-          bg-teal-600
-          text-white
-          flex
-          flex-col
-          shrink-0
-        ">
+        <aside className="w-full md:w-64 bg-teal-600 text-white flex flex-col shrink-0">
           <div className="p-6 border-b border-teal-700">
             <h2 className="text-2xl font-bold">eTuitionBd</h2>
             <p className="text-sm text-teal-200 mt-1">

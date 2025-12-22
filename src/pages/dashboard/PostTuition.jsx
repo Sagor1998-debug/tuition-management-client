@@ -2,7 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
-import api from '../../api/axios'; // <-- use api instance
+import api from '../../api/axios';
 
 export default function PostTuition() {
   const navigate = useNavigate();
@@ -34,15 +34,14 @@ export default function PostTuition() {
   }, [editTuition]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -50,34 +49,23 @@ export default function PostTuition() {
       return;
     }
 
-    try {
-      const config = {
-        headers: {
-          'x-auth-token': token
-        }
-      };
+    const config = {
+      headers: { 'x-auth-token': token }
+    };
 
+    try {
       if (isEditMode) {
-        await api.put(
-          `/tuitions/${editTuition._id}`,
-          formData,
-          config
-        );
+        await api.put(`/tuitions/${editTuition._id}`, formData, config);
         toast.success('Tuition updated successfully!');
       } else {
-        await api.post(
-          '/tuitions',
-          formData,
-          config
-        );
+        await api.post('/tuitions', formData, config);
         toast.success('Tuition posted successfully!');
       }
-
       navigate('/dashboard/my-tuitions');
     } catch (err) {
+      console.error(err);
       toast.error(
-        err.response?.data?.msg ||
-        `Failed to ${isEditMode ? 'update' : 'post'} tuition`
+        err.response?.data?.msg || `Failed to ${isEditMode ? 'update' : 'post'} tuition`
       );
     }
   };

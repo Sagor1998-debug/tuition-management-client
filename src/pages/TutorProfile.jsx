@@ -1,6 +1,6 @@
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
-import api from '../api/axios'; // replaced axios with api
+import api from '../api/axios'; // using api instance
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -14,11 +14,9 @@ export default function TutorProfile() {
   useEffect(() => {
     const loadTutor = async () => {
       try {
-        const res = await api.get(
-          `${import.meta.env.VITE_API_URL}/users/${id}`
-        );
+        const res = await api.get(`/users/${id}`); // use api instance and relative path
 
-        // Optional safety check
+        // Ensure the fetched user is a tutor
         if (res.data.role !== 'tutor') {
           toast.error('This user is not a tutor');
           navigate('/tutors');
@@ -80,7 +78,6 @@ export default function TutorProfile() {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-8">
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-          
           <img
             src={tutor.photoUrl || '/src/assets/default-avatar.jpg'}
             alt={tutor.name}
@@ -88,24 +85,21 @@ export default function TutorProfile() {
           />
 
           <div className="flex-1 space-y-3">
-            <h2 className="text-3xl font-bold text-emerald-800">
-              {tutor.name}
-            </h2>
+            <h2 className="text-3xl font-bold text-emerald-800">{tutor.name}</h2>
 
-            <p  className="items-center"><strong>Email:</strong> {tutor.email}</p>
-            <p className="items-center"><strong>Qualifications:</strong> {tutor.qualifications || 'Not provided'}</p>
-            <p className="items-center"><strong>Experience:</strong> {tutor.experience || 0} years</p>
+            <p><strong>Email:</strong> {tutor.email}</p>
+            <p><strong>Qualifications:</strong> {tutor.qualifications || 'Not provided'}</p>
+            <p><strong>Experience:</strong> {tutor.experience || 0} years</p>
 
             <div className="mt-6">
               <button
                 onClick={handleHireTutor}
-                className="items-center bg-rose-500 shadow-lg shadow-rose-500/50 ... btn btn-success btn-lg w-32"
+                className="bg-rose-500 shadow-lg shadow-rose-500/50 btn btn-success btn-lg w-32"
               >
                 Hire This Tutor
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </DashboardLayout>

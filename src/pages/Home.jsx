@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-import api from '../api/axios'; // <- use api instance
+import api from '../api/axios'; // Using api instance
 
 export default function Home() {
   const [tuitions, setTuitions] = useState([]);
@@ -32,13 +32,14 @@ export default function Home() {
 
       setLoading(false);
     };
+
     fetchData();
   }, []);
 
   return (
     <>
       {/* HERO SECTION */}
-      <div className="hero-content flex flex-col items-center justify-center text-center min-h-screen bg-cyan-500 shadow-lg shadow-cyan-500/50 ...">
+      <div className="hero-content flex flex-col items-center justify-center text-center min-h-screen bg-cyan-500 shadow-lg shadow-cyan-500/50">
         <div className="hero-content text-center">
           <div className="max-w-md lg:max-w-4xl">
             <motion.h1 
@@ -65,10 +66,16 @@ export default function Home() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="flex flex-col sm:flex-row gap-8 justify-center"
             >
-              <Link to="/tuitions" className="items-center text-center rounded-xl btn btn-lg bg-emerald-500 text-white-600 hover:bg-yellow-400 shadow-xl text-xl px-10">
+              <Link 
+                to="/tuitions" 
+                className="items-center text-center rounded-xl btn btn-lg bg-emerald-500 text-white hover:bg-yellow-400 shadow-xl text-xl px-10"
+              >
                 Browse Tuitions
               </Link>
-              <Link to="/register" className="bg-emerald-500 rounded-xl btn btn-lg btn-outline text-white-600 border-white hover:bg-yellow-400 hover:text-rose-600 shadow-xl text-xl px-10">
+              <Link 
+                to="/register" 
+                className="bg-emerald-500 rounded-xl btn btn-lg btn-outline text-white border-white hover:bg-yellow-400 hover:text-rose-600 shadow-xl text-xl px-10"
+              >
                 Become a Tutor
               </Link>
             </motion.div>
@@ -116,13 +123,14 @@ export default function Home() {
                 >
                   <div className="bg-red-400 rounded-xl card-body">
                     <h3 className="text-center card-title">{tuition.subject}</h3>
-                    <p className='text-center'>Class: {tuition.class}</p>
-                    <p className='text-center'>Location: {tuition.location}</p>
+                    <p className="text-center">Class: {tuition.class}</p>
+                    <p className="text-center">Location: {tuition.location}</p>
                     <p className="text-center font-bold text-emerald-600">৳{tuition.salary}/month</p>
                     <div className="text-center card-actions justify-end">
-                      <Link to={`/tuitions/${tuition._id}`} className="bg-red-700 btn btn-sm btn-outline
-                                  text-white text-bold border-white
-                                 hover:bg-white hover:text-indigo-600 btn btn-sm btn-primary">
+                      <Link 
+                        to={`/tuitions/${tuition._id}`} 
+                        className="bg-red-700 btn btn-sm btn-outline text-white border-white hover:bg-white hover:text-indigo-600"
+                      >
                         View Details
                       </Link>
                     </div>
@@ -155,7 +163,7 @@ export default function Home() {
                       <img src={tutor.photoUrl || '/src/assets/default-avatar.jpg'} alt={tutor.name} />
                     </div>
                   </div>
-                  <h3 className="-ml-14 mt-4 font-semibold">{tutor.name}</h3>
+                  <h3 className="mt-4 font-semibold">{tutor.name}</h3>
                 </motion.div>
               ))}
             </div>
@@ -167,7 +175,7 @@ export default function Home() {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-emerald-800">How It Works</h2>
-          <div className=" grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
               { step: "1", title: "Post Your Need", desc: "Create a tuition post with your requirements" },
               { step: "2", title: "Receive Applications", desc: "Tutors apply directly to your post" },
@@ -182,7 +190,7 @@ export default function Home() {
                   {item.step}
                 </div>
                 <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
-                <p className="text-white-600">{item.desc}</p>
+                <p>{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -205,7 +213,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-red-500 shadow-lg shadow-red-500/50 text-center p-8 rounded-xl shadow-lg"
+                className="bg-red-500 shadow-lg text-center p-8 rounded-xl"
               >
                 <div className="text-6xl mb-4">{feat.icon}</div>
                 <h2 className="text-xl font-bold">{feat.title}</h2>

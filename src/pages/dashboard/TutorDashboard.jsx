@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../api/axios'; // <-- use api instance
+import api from '../../api/axios'; // Using api instance
 
 export default function TutorDashboard() {
   const [stats, setStats] = useState({
@@ -27,10 +27,11 @@ export default function TutorDashboard() {
         setStats({
           activeTuitions: approved.length,
           totalEarnings,
-          rating: 4.8 // or calculate from reviews later
+          rating: 4.8 // can be updated from reviews in the future
         });
-        setLoading(false);
       } catch (err) {
+        console.error('Failed to fetch tutor stats:', err);
+      } finally {
         setLoading(false);
       }
     };
@@ -55,7 +56,9 @@ export default function TutorDashboard() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body text-center">
             <h3 className="text-xl">Total Earnings</h3>
-            <p className="text-5xl font-bold text-emerald-600">৳{stats.totalEarnings.toLocaleString()}</p>
+            <p className="text-5xl font-bold text-emerald-600">
+              ৳{stats.totalEarnings.toLocaleString()}
+            </p>
           </div>
         </div>
 
@@ -68,7 +71,10 @@ export default function TutorDashboard() {
       </div>
 
       <div className="text-center">
-        <Link to="/tuitions" className="bg-indigo-500 shadow-lg shadow-indigo-500/50 ... btn btn-success btn-lg px-12">
+        <Link
+          to="/tuitions"
+          className="bg-indigo-500 shadow-lg shadow-indigo-500/50 btn btn-success btn-lg px-12"
+        >
           Find New Students
         </Link>
       </div>

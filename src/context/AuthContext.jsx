@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import api from '../api/axios'; // <-- use the shared axios instance
+import api from '../api/axios'; // ✅ use shared axios instance with baseURL
 
 /* =========================
    FIREBASE CONFIG
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       setToken(storedToken);
 
       api
-        .get('/users/profile') // <-- uses api base URL
+        .get('/users/profile') // ✅ uses api base URL
         .then((res) => {
           setUser(res.data);
           localStorage.setItem('role', res.data.role);
@@ -94,10 +94,11 @@ export const AuthProvider = ({ children }) => {
      GOOGLE LOGIN
   ========================= */
   const googleLogin = async () => {
+  try {
     const result = await signInWithPopup(auth, provider);
     const { displayName, email, photoURL } = result.user;
 
-    const res = await api.post('/auth/google', {
+    const res = await api.post('/api/auth/google-login', {
       name: displayName,
       email,
       photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
@@ -105,7 +106,13 @@ export const AuthProvider = ({ children }) => {
 
     handleSuccessfulAuth(res.data.user, res.data.token);
     return res.data.user;
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error('Google login failed');
+    throw error;
+  }
+};
+
 
   /* =========================
      LOGOUT
@@ -127,7 +134,7 @@ export const AuthProvider = ({ children }) => {
         register,
         googleLogin,
         logout,
-        api,
+        api, // provide api instance for other components
       }}
     >
       {!loading && children}

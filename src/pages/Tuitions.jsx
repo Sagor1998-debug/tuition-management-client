@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import api from '../api/axios'; // replaced axios with api
+import api from '../api/axios';
+
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -18,34 +19,33 @@ export default function Tuitions() {
   const [page, setPage] = useState(1);
 
   const fetchTuitions = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (subject) params.append('subject', subject);
-      if (location) params.append('location', location);
-      if (minSalary) params.append('minSalary', minSalary);
-      if (maxSalary) params.append('maxSalary', maxSalary);
-      if (sort) params.append('sort', sort);
-      params.append('page', page);
+  setLoading(true);
+  try {
+    const res = await api.get('/tuitions');
 
-      const res = await api.get(`/api/tuitions?${params.toString()}`);
+    console.log('Tuitions API response:', res.data);
 
-      setTuitions(res.data.tuitions || []);
-      setPagination(res.data.pagination || { current: 1, pages: 1 });
-    } catch (err) {
-      toast.error('Failed to load tuitions');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Backend returns ARRAY directly
+    setTuitions(Array.isArray(res.data) ? res.data : []);
+
+    // No pagination in backend
+    setPagination({ current: 1, pages: 1 });
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to load tuitions');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
-    fetchTuitions();
-  }, [search, subject, location, minSalary, maxSalary, sort, page]);
+  fetchTuitions();
+}, []);
+
 
   return (
-    <div className="bg-cyan-400 shadow-lg shadow-cyan-500/50 ... py-10">
+    <div className="bg-cyan-400 shadow-lg shadow-cyan-500/50 py-10">
       <div className="container mx-auto px-4">
 
         {/* Page Title */}
@@ -141,7 +141,7 @@ export default function Tuitions() {
                     <Link
                       to={`/tuitions/${t._id}`}
                       className="bg-red-700 btn btn-sm btn-outline
-                                 text-white text-bold border-white
+                                 text-white font-bold border-white
                                  hover:bg-white hover:text-indigo-600"
                     >
                       View Details

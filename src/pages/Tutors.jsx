@@ -1,43 +1,43 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axios'; // <-- replaced axios with api
+import api from '../api/axios'; // <- use api.js, not axios.js
 
 export default function Tutors() {
-  const [tutors, setTutors] = useState([]); // always array
+  const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filters & sorting
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const tutorsPerPage = 10;
 
-  useEffect(() => {
-    const fetchTutors = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const res = await api.get('http://localhost:5000/dev/tutors');
-        console.log('Fetched tutors:', res.data);
+ useEffect(() => {
+  const fetchTutors = async () => {
+    try {
+      setLoading(true);
+      setError('');
 
-        // Safe handling: array directly or wrapped in "tutors"
-        const tutorsArray = Array.isArray(res.data) ? res.data : res.data?.tutors || [];
-        setTutors(tutorsArray);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load tutors. Make sure backend is running.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTutors();
-  }, []);
+      const res = await api.get('/tutors');
 
-  // Filter + sort (always operate on array)
+      console.log('API response:', res.data);
+
+      // ✅ CORRECT: backend sends { tutors: [...] }
+      setTutors(res.data.tutors || []);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load tutors.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTutors();
+}, []);
+
+
   const filteredTutors = Array.isArray(tutors)
     ? tutors
         .filter(tutor => {
@@ -61,7 +61,6 @@ export default function Tutors() {
         })
     : [];
 
-  // Pagination logic
   const indexOfLastTutor = currentPage * tutorsPerPage;
   const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
   const currentTutors = filteredTutors.slice(indexOfFirstTutor, indexOfLastTutor);
@@ -70,7 +69,6 @@ export default function Tutors() {
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage(prev => prev - 1);
   };
-
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
   };
@@ -138,7 +136,7 @@ export default function Tutors() {
                     alt={tutor.name}
                     className=" w-28 h-28 rounded-full mb-4 object-cover border-4 border-emerald-600"
                   />
-                  <h3 className="text-xl font-bold text-rose-900 ">{tutor.name}</h3>
+                  <h3 className="text-xl font-bold text-rose-900">{tutor.name}</h3>
                   <p className="text-sm text-rose-900 mt-2">{tutor.qualifications || 'No qualifications listed'}</p>
                   <p className="text-sm text-rose-900 mt-1">{tutor.experience || 'Not specified'}</p>
                   <Link to={`/tutor/${tutor._id}`} className="bg-transparent hover:bg-purple-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-purple-600 hover:border-transparent rounded">
@@ -153,21 +151,13 @@ export default function Tutors() {
         {/* Pagination Controls */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 gap-4">
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="btn btn-outline"
-            >
+            <button onClick={handlePrevPage} disabled={currentPage === 1} className="btn btn-outline">
               Previous
             </button>
             <span className="flex items-center px-3 text-gray-700">
               Page {currentPage} of {totalPages}
             </span>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className="btn btn-outline"
-            >
+            <button onClick={handleNextPage} disabled={currentPage === totalPages} className="btn btn-outline">
               Next
             </button>
           </div>

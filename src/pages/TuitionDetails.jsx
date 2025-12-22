@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
-import api from '../api/axios'; // replaced axios with api
+import api from '../api/axios'; // using api instance
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -22,7 +22,7 @@ export default function TuitionDetails() {
 
   // Fetch tuition details
   useEffect(() => {
-    api.get(`/dev/tuitions/${id}`)
+    api.get(`/tuitions/${id}`)
       .then(res => {
         setTuition(res.data);
         if (user?.bookmarks?.includes(id)) setIsBookmarked(true);
@@ -40,7 +40,7 @@ export default function TuitionDetails() {
     if (!user) return toast.error('Please login as tutor');
 
     try {
-      await api.post('/api/applications', {
+      await api.post('/applications', {
         tuitionId: id,
         expectedSalary: formData.expectedSalary,
         message: formData.message,
@@ -61,7 +61,7 @@ export default function TuitionDetails() {
     if (!user) return toast.error('Please login to bookmark');
 
     try {
-      await api.post(`/api/users/bookmark/${id}`, {}, {
+      await api.post(`/users/bookmark/${id}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setIsBookmarked(!isBookmarked);
@@ -84,7 +84,7 @@ export default function TuitionDetails() {
   );
 
   return (
-    <div className=" bg-red-100 container mx-auto py-10 px-4">
+    <div className="bg-red-100 container mx-auto py-10 px-4">
       <div className="bg-rose-300 card lg:card-side shadow-xl max-w-5xl mx-auto">
         <div className="card-body">
           <div className="flex justify-between items-start mb-4">
@@ -95,7 +95,7 @@ export default function TuitionDetails() {
             {user && (
               <button
                 onClick={handleBookmark}
-                className={` bg-red-600 text-white btn btn-lg ${isBookmarked ? 'btn-warning' : 'btn-outline'} hover:btn-warning`}
+                className={`bg-red-600 text-white btn btn-lg ${isBookmarked ? 'btn-warning' : 'btn-outline'} hover:btn-warning`}
               >
                 {isBookmarked ? 'Bookmarked' : 'Bookmark'}
               </button>
@@ -107,7 +107,7 @@ export default function TuitionDetails() {
           <p>Schedule: {tuition?.schedule || 'Not specified'}</p>
           <div className="divider"></div>
           <div className="prose max-w-none">
-            <p className="whitespace-pre-wrap">{tuition?.description || tuition?.details || 'No description available.'}</p>
+            <p className="whitespace-pre-wrap">{tuition?.description || 'No description available.'}</p>
           </div>
 
           <div className="card-actions justify-end mt-8 gap-4">
@@ -145,9 +145,9 @@ export default function TuitionDetails() {
           <div className="bg-black-400 rounded-xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
             <div className="bg-emerald-600 p-8">
               <h3 className="text-3xl font-bold mb-6 text-emerald-800">Apply for Tuition</h3>
-              <form onSubmit={handleApply} className=" space-y-6">
+              <form onSubmit={handleApply} className="space-y-6">
                 <div>
-                  <label className=" label font-medium">Name</label>
+                  <label className="label font-medium">Name</label>
                   <input value={user?.name || ''} className="input input-bordered w-full" disabled />
                 </div>
                 <div>

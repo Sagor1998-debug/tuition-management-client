@@ -1,7 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import api from '../../api/axios'; // <-- use api instance
+import api from '../../api/axios'; // Using api instance
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,7 +14,7 @@ import {
   Legend,
   ArcElement
 } from 'chart.js';
-import { Line, Bar, Pie } from 'react-chartjs-2';
+import { Line, Pie } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -42,13 +42,13 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/admin/reports')
+    api.get('/admin/reports') // Matches your backend route
       .then(res => setStats(res.data))
       .catch(() => toast.error('Failed to load reports'))
       .finally(() => setLoading(false));
   }, []);
 
-  // Chart Data
+  // Monthly earnings chart
   const monthlyData = {
     labels: stats.monthlyEarnings.map(m => m._id),
     datasets: [
@@ -62,13 +62,14 @@ export default function Reports() {
     ]
   };
 
+  // User distribution chart
   const roleData = {
     labels: ['Students', 'Tutors'],
     datasets: [
       {
         label: 'User Distribution',
         data: [stats.totalStudents, stats.totalTutors],
-        backgroundColor: ['#3b82f6', '#8b5cf6'],
+        backgroundColor: ['#3b82f6', '#8b5cf6']
       }
     ]
   };
@@ -76,7 +77,9 @@ export default function Reports() {
   return (
     <DashboardLayout>
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-4xl font-bold mb-10 text-emerald-800 text-center">Reports & Analytics</h2>
+        <h2 className="text-4xl font-bold mb-10 text-emerald-800 text-center">
+          Reports & Analytics
+        </h2>
 
         {loading ? (
           <div className="flex justify-center py-20">
@@ -87,7 +90,9 @@ export default function Reports() {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               <div className="bg-emerald-100 p-8 rounded-xl text-center shadow-md">
-                <h3 className="text-5xl font-bold text-emerald-800">৳{stats.totalEarnings.toLocaleString()}</h3>
+                <h3 className="text-5xl font-bold text-emerald-800">
+                  ৳{stats.totalEarnings.toLocaleString()}
+                </h3>
                 <p className="text-gray-700 mt-3 text-xl">Total Platform Earnings</p>
               </div>
               <div className="bg-blue-100 p-8 rounded-xl text-center shadow-md">
@@ -112,7 +117,7 @@ export default function Reports() {
               </div>
             </div>
 
-            {/* Transaction History */}
+            {/* Recent Transactions */}
             <div className="bg-base-100 rounded-xl shadow-md p-6">
               <h3 className="text-2xl font-bold mb-6 text-emerald-800">Recent Transactions</h3>
               {stats.recentTransactions.length === 0 ? (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../api/axios'; // <-- use api instance
+import api from '../../api/axios'; // Using api instance
 
 export default function StudentDashboard() {
   const [stats, setStats] = useState({
@@ -29,8 +29,9 @@ export default function StudentDashboard() {
           applications: appsRes.data.length,
           totalSpent
         });
-        setLoading(false);
       } catch (err) {
+        console.error('Failed to fetch student stats:', err);
+      } finally {
         setLoading(false);
       }
     };
@@ -45,21 +46,21 @@ export default function StudentDashboard() {
       <h2 className="text-5xl font-bold text-center mb-10">Student Dashboard</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div className="rounded-xl h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 ... shadow-xl">
+        <div className="rounded-xl h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 shadow-xl">
           <div className="card-body text-center">
             <h3 className="mt-6 text-xl">My Tuitions</h3>
             <p className="text-5xl font-bold text-purple-600">{stats.myTuitions}</p>
           </div>
         </div>
 
-        <div className="rounded-xl card h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 ...  shadow-xl">
+        <div className="rounded-xl h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 shadow-xl">
           <div className="card-body text-center">
             <h3 className="mt-6 text-xl">Applications</h3>
             <p className="text-5xl font-bold text-pink-600">{stats.applications}</p>
           </div>
         </div>
 
-        <div className="rounded-xl card h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 ...  shadow-xl">
+        <div className="rounded-xl h-32 card bg-blue-500 shadow-lg shadow-blue-500/50 shadow-xl">
           <div className="card-body text-center">
             <h3 className="mt-6 text-xl">Total Spent</h3>
             <p className="text-5xl font-bold text-yellow-600">৳{stats.totalSpent.toLocaleString()}</p>
@@ -67,8 +68,11 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      <div className=" text-center">
-        <Link to="/dashboard/post-tuition" className="bg-blue-500 shadow-lg shadow-blue-500/50 ... btn btn-primary btn-lg px-12">
+      <div className="text-center">
+        <Link
+          to="/dashboard/post-tuition"
+          className="bg-blue-500 shadow-lg shadow-blue-500/50 btn btn-primary btn-lg px-12"
+        >
           Post New Tuition
         </Link>
       </div>

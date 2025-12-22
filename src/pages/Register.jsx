@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios'; // replaced axios with api
+import api from '../api/axios'; // using api instance
 import toast from 'react-hot-toast';
 
 export default function Register() {
@@ -20,7 +20,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/api/auth/register', formData); // use api instead of axios
+      const res = await api.post('/auth/register', formData); // endpoint matches your backend
       localStorage.setItem('token', res.data.token);
       toast.success('Registration successful!');
       navigate('/dashboard');
@@ -32,7 +32,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center py-12">
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
-        <div className=" bg-emerald-200  rounded-xl card-body">
+        <div className="bg-emerald-200 rounded-xl card-body">
           <h2 className="text-3xl font-bold text-center text-emerald-800">Create Account</h2>
           <form onSubmit={handleSubmit} className="space-y-6 mt-6">
             <div>

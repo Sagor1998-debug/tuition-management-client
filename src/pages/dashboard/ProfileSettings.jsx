@@ -2,7 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import api from '../../api/axios'; // <-- use api instance
+import api from '../../api/axios';
 
 export default function ProfileSettings() {
   const { user } = useContext(AuthContext);
@@ -13,14 +13,16 @@ export default function ProfileSettings() {
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please login first');
+        return;
+      }
 
       await api.patch(
         '/users/profile',
         { name, photoUrl },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
