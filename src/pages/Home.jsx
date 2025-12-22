@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-import axios from 'axios';
+import api from '../api/axios'; // <- use api instance
 
 export default function Home() {
   const [tuitions, setTuitions] = useState([]);
@@ -13,10 +13,8 @@ export default function Home() {
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch Latest Tuitions — your endpoint exists!
       try {
-        const tuitionRes = await axios.get('http://localhost:5000/api/tuitions');
-        // Backend returns { tuitions: [...], pagination: ... } or direct array
+        const tuitionRes = await api.get('/tuitions');
         const tuitionList = tuitionRes.data.tuitions || tuitionRes.data || [];
         setTuitions(tuitionList.slice(0, 6));
       } catch (err) {
@@ -24,9 +22,8 @@ export default function Home() {
         setTuitions([]);
       }
 
-      // Fetch Latest Tutors — now safe even if endpoint missing
       try {
-        const tutorRes = await axios.get('http://localhost:5000/api/users/tutors');
+        const tutorRes = await api.get('/users/tutors');
         setTutors(tutorRes.data.slice(0, 6));
       } catch (err) {
         console.log('Tutors endpoint not ready — showing empty for now');
@@ -40,66 +37,66 @@ export default function Home() {
 
   return (
     <>
-      {/* YOUR BEAUTIFUL HERO - Kept + Enhanced Animation */}
-     <div className="hero-content flex flex-col items-center justify-center text-center min-h-screen bg-cyan-500 shadow-lg shadow-cyan-500/50 ...">
-  <div className="hero-content text-center">
-    <div className="max-w-md lg:max-w-4xl">
-      <motion.h1 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8"
-      >
-        Find Your Perfect Tutor
-      </motion.h1>
+      {/* HERO SECTION */}
+      <div className="hero-content flex flex-col items-center justify-center text-center min-h-screen bg-cyan-500 shadow-lg shadow-cyan-500/50 ...">
+        <div className="hero-content text-center">
+          <div className="max-w-md lg:max-w-4xl">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8"
+            >
+              Find Your Perfect Tutor
+            </motion.h1>
 
-      <motion.p 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.8 }}
-        className="text-xl md:text-2xl text-white mb-12"
-      >
-        Connect with qualified tutors in Bangladesh instantly
-      </motion.p>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="text-xl md:text-2xl text-white mb-12"
+            >
+              Connect with qualified tutors in Bangladesh instantly
+            </motion.p>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8 }}
-        className="flex flex-col sm:flex-row gap-8 justify-center"
-      >
-        <Link to="/tuitions" className="items-center text-center rounded-xl btn btn-lg bg-emerald-500 text-white-600 hover:bg-yellow-400 shadow-xl text-xl px-10">
-          Browse Tuitions
-        </Link>
-        <Link to="/register" className="bg-emerald-500 rounded-xl btn btn-lg btn-outline text-white-600 border-white hover:bg-yellow-400 hover:text-rose-600 shadow-xl text-xl px-10">
-          Become a Tutor
-        </Link>
-      </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="flex flex-col sm:flex-row gap-8 justify-center"
+            >
+              <Link to="/tuitions" className="items-center text-center rounded-xl btn btn-lg bg-emerald-500 text-white-600 hover:bg-yellow-400 shadow-xl text-xl px-10">
+                Browse Tuitions
+              </Link>
+              <Link to="/register" className="bg-emerald-500 rounded-xl btn btn-lg btn-outline text-white-600 border-white hover:bg-yellow-400 hover:text-rose-600 shadow-xl text-xl px-10">
+                Become a Tutor
+              </Link>
+            </motion.div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 1 }}
-        className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12 bg-white/20 backdrop-blur-md rounded-3xl p-10 shadow-2xl"
-      >
-        <div>
-          <div className="text-5xl font-bold text-white">500+</div>
-          <div className="text-lg text-white mt-2">Active Tuitions</div>
+            <motion.div 
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 1 }}
+              className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12 bg-white/20 backdrop-blur-md rounded-3xl p-10 shadow-2xl"
+            >
+              <div>
+                <div className="text-5xl font-bold text-white">500+</div>
+                <div className="text-lg text-white mt-2">Active Tuitions</div>
+              </div>
+              <div>
+                <div className="text-5xl font-bold text-white">1,200+</div>
+                <div className="text-lg text-white mt-2">Verified Tutors</div>
+              </div>
+              <div>
+                <div className="text-5xl font-bold text-white">98%</div>
+                <div className="text-lg text-white mt-2">Success Rate</div>
+              </div>
+            </motion.div>
+          </div>
         </div>
-        <div>
-          <div className="text-5xl font-bold text-white">1,200+</div>
-          <div className="text-lg text-white mt-2">Verified Tutors</div>
-        </div>
-        <div>
-          <div className="text-5xl font-bold text-white">98%</div>
-          <div className="text-lg text-white mt-2">Success Rate</div>
-        </div>
-      </motion.div>
-    </div>
-  </div>
-</div>
+      </div>
 
-      {/* DYNAMIC LATEST TUITION POSTS */}
+      {/* LATEST TUITION POSTS */}
       <section className="py-20 bg-base-200">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-emerald-800">Latest Tuition Posts</h2>
@@ -137,7 +134,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* DYNAMIC LATEST TUTORS */}
+      {/* LATEST TUTORS */}
       <section className="py-20 bg-base-300">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-emerald-800">Top Verified Tutors</h2>

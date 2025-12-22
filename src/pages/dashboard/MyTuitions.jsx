@@ -1,8 +1,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import api from '../../api/axios'; // <-- use api instance
 
 export default function MyTuitions() {
   const [tuitions, setTuitions] = useState([]);
@@ -34,10 +34,7 @@ export default function MyTuitions() {
     if (!config) return;
 
     try {
-      const res = await axios.get(
-        'http://localhost:5000/api/tuitions/my',
-        config
-      );
+      const res = await api.get('/tuitions/my', config);
       setTuitions(res.data);
     } catch (err) {
       toast.error('Failed to load tuitions');
@@ -51,10 +48,7 @@ export default function MyTuitions() {
     if (!config) return;
 
     try {
-      await axios.delete(
-        `http://localhost:5000/api/tuitions/${id}`,
-        config
-      );
+      await api.delete(`/tuitions/${id}`, config);
       toast.success('Tuition deleted successfully');
       loadTuitions(); // refresh list
     } catch (err) {

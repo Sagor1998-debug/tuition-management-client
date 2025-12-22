@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios'; // replaced axios with api
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -29,9 +29,7 @@ export default function Tuitions() {
       if (sort) params.append('sort', sort);
       params.append('page', page);
 
-      const res = await axios.get(
-        `http://localhost:5000/api/tuitions?${params.toString()}`
-      );
+      const res = await api.get(`/api/tuitions?${params.toString()}`);
 
       setTuitions(res.data.tuitions || []);
       setPagination(res.data.pagination || { current: 1, pages: 1 });

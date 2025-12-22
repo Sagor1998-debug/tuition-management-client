@@ -1,8 +1,8 @@
 import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import api from '../api/axios'; // <-- use the shared axios instance
 
 /* =========================
    FIREBASE CONFIG
@@ -26,22 +26,6 @@ const provider = new GoogleAuthProvider();
 export const AuthContext = createContext();
 
 /* =========================
-   AXIOS INSTANCE
-========================= */
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-});
-
-// Attach token automatically
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-/* =========================
    PROVIDER
 ========================= */
 export const AuthProvider = ({ children }) => {
@@ -59,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       setToken(storedToken);
 
       api
-        .get('/users/profile')
+        .get('/users/profile') // <-- uses api base URL
         .then((res) => {
           setUser(res.data);
           localStorage.setItem('role', res.data.role);

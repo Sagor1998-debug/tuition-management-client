@@ -1,8 +1,8 @@
 import { useContext, useState, useEffect, createContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import api from '../api/axios'; // <-- use shared axios instance
 
 export const NotificationContext = createContext();
 
@@ -52,14 +52,7 @@ export default function DashboardLayout({ children }) {
 
   const loadNotifications = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      const res = await axios.get(
-        'http://localhost:5000/api/tuitions/my',
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      const res = await api.get('/tuitions/my'); // <-- use api instance
       const notif = res.data
         .filter(t => t.status === 'approved')
         .map(t => ({
@@ -70,7 +63,8 @@ export default function DashboardLayout({ children }) {
 
       setNotifications(notif);
       setUnreadCount(notif.filter(n => !n.read).length);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error('Failed to load notifications');
     }
   };
@@ -88,10 +82,9 @@ export default function DashboardLayout({ children }) {
 
   return (
     <NotificationContext.Provider value={{ notifications, unreadCount }}>
-      {/* ✅ MAIN LAYOUT — EXACTLY AS REQUESTED */}
       <div className="min-h-screen bg-base-200 flex flex-col md:flex-row">
 
-        {/* ✅ SIDEBAR */}
+        {/* SIDEBAR */}
         <aside className="
           w-full
           md:w-64
@@ -133,7 +126,7 @@ export default function DashboardLayout({ children }) {
           </div>
         </aside>
 
-        {/* ✅ RIGHT CONTENT */}
+        {/* RIGHT CONTENT */}
         <div className="flex-1 flex flex-col">
 
           {/* TOP BAR */}
@@ -177,7 +170,7 @@ export default function DashboardLayout({ children }) {
             </div>
           </header>
 
-          {/* ✅ PAGE CONTENT */}
+          {/* PAGE CONTENT */}
           <main className="flex-1 p-4 md:p-8 bg-base-200 overflow-y-auto">
             {children}
           </main>

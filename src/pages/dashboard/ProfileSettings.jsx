@@ -1,8 +1,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import api from '../../api/axios'; // <-- use api instance
 
 export default function ProfileSettings() {
   const { user } = useContext(AuthContext);
@@ -14,8 +14,8 @@ export default function ProfileSettings() {
     try {
       const token = localStorage.getItem('token');
 
-      await axios.patch(
-        'http://localhost:5000/api/users/profile',
+      await api.patch(
+        '/users/profile',
         { name, photoUrl },
         {
           headers: {

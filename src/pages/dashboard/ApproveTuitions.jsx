@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axios'; // <-- replaced axios with api
 
 export default function ApproveTuitions() {
   const [pendingPosts, setPendingPosts] = useState([]);
@@ -23,7 +23,7 @@ export default function ApproveTuitions() {
         };
 
         // Correct route from your tuitions.js
-        const res = await axios.get('http://localhost:5000/api/tuitions/manage', config);
+        const res = await api.get('/tuitions/manage', config);
 
         const pending = res.data.filter(post => post.status === 'pending');
         setPendingPosts(pending);
@@ -41,8 +41,8 @@ export default function ApproveTuitions() {
   const handleStatus = async (id, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(
-        `http://localhost:5000/api/tuitions/${id}/status`,
+      await api.patch(
+        `/tuitions/${id}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

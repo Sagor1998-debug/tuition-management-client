@@ -1,6 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api/axios'; // <-- replaced axios with api
 import toast from 'react-hot-toast';
 
 export default function MyApplications() {
@@ -23,8 +23,8 @@ export default function MyApplications() {
       if (!config) return;
 
       try {
-        const res = await axios.get(
-          'http://localhost:5000/api/applications/my', // correct backend route
+        const res = await api.get(
+          '/applications/my', // use relative path with api instance
           config
         );
         setApplications(res.data);
@@ -46,7 +46,7 @@ export default function MyApplications() {
     if (!window.confirm('Delete this application?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/applications/${id}`, config);
+      await api.delete(`/applications/${id}`, config);
       toast.success('Application deleted');
       setApplications(prev => prev.filter(app => app._id !== id));
     } catch (err) {

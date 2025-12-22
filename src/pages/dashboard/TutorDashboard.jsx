@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
+import api from '../../api/axios'; // <-- use api instance
 
 export default function TutorDashboard() {
   const [stats, setStats] = useState({
@@ -17,8 +17,8 @@ export default function TutorDashboard() {
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         const [appsRes, paymentsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/applications/tutor', config),
-          axios.get('http://localhost:5000/api/payments/history', config)
+          api.get('/applications/tutor', config),
+          api.get('/payments/history', config)
         ]);
 
         const approved = appsRes.data.filter(app => app.status === 'approved');

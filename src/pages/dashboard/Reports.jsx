@@ -1,7 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import api from '../../api/axios'; // <-- use api instance
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -42,7 +42,7 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/admin/reports')
+    api.get('/admin/reports')
       .then(res => setStats(res.data))
       .catch(() => toast.error('Failed to load reports'))
       .finally(() => setLoading(false));

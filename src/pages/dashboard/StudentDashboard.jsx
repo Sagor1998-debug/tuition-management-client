@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
+import api from '../../api/axios'; // <-- use api instance
 
 export default function StudentDashboard() {
   const [stats, setStats] = useState({
@@ -17,9 +17,9 @@ export default function StudentDashboard() {
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         const [tuitionsRes, appsRes, paymentsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/tuitions/my', config),
-          axios.get('http://localhost:5000/api/applications/my', config),
-          axios.get('http://localhost:5000/api/payments/history', config)
+          api.get('/tuitions/my', config),
+          api.get('/applications/my', config),
+          api.get('/payments/history', config)
         ]);
 
         const totalSpent = paymentsRes.data.reduce((sum, p) => sum + p.amount, 0);

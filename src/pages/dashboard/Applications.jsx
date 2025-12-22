@@ -1,8 +1,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios'; // <-- replaced axios with api
 
 export default function Applications() {
   const [applications, setApplications] = useState([]);
@@ -37,16 +37,14 @@ export default function Applications() {
 
     try {
       let url = '';
-      if (role === 'student') url = 'http://localhost:5000/api/applications/my';
-     else if (role === 'tutor')
-  url = 'http://localhost:5000/api/applications/my-applications';
-
+      if (role === 'student') url = '/applications/my';
+      else if (role === 'tutor') url = '/applications/my-applications';
       else {
         toast.error('Invalid role');
         return;
       }
 
-      const res = await axios.get(url, config);
+      const res = await api.get(url, config);
       setApplications(res.data);
     } catch (err) {
       console.error(err);
@@ -67,7 +65,7 @@ export default function Applications() {
     if (!config) return;
 
     try {
-      await axios.patch(`http://localhost:5000/api/applications/${id}/reject`, {}, config);
+      await api.patch(`/applications/${id}/reject`, {}, config);
       toast.success('Application rejected');
       loadApplications();
     } catch (err) {
@@ -84,8 +82,8 @@ export default function Applications() {
     try {
       toast.loading('Redirecting to payment...');
 
-      const res = await axios.post(
-        'http://localhost:5000/api/payments/create-checkout-session',
+      const res = await api.post(
+        '/payments/create-checkout-session',
         { applicationId: id },
         config
       );

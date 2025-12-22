@@ -1,8 +1,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../../api/axios'; // <-- use api instance
 
 export default function PostTuition() {
   const navigate = useNavigate();
@@ -58,15 +58,15 @@ export default function PostTuition() {
       };
 
       if (isEditMode) {
-        await axios.put(
-          `http://localhost:5000/api/tuitions/${editTuition._id}`,
+        await api.put(
+          `/tuitions/${editTuition._id}`,
           formData,
           config
         );
         toast.success('Tuition updated successfully!');
       } else {
-        await axios.post(
-          'http://localhost:5000/api/tuitions',
+        await api.post(
+          '/tuitions',
           formData,
           config
         );

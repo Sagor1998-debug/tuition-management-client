@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios'; // <-- replaced axios with api
 
 export default function Tutors() {
   const [tutors, setTutors] = useState([]); // always array
@@ -21,7 +21,7 @@ export default function Tutors() {
       try {
         setLoading(true);
         setError('');
-        const res = await axios.get('http://localhost:5000/dev/tutors');
+        const res = await api.get('http://localhost:5000/dev/tutors');
         console.log('Fetched tutors:', res.data);
 
         // Safe handling: array directly or wrapped in "tutors"

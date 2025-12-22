@@ -9,7 +9,13 @@ export default function NotFound() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-9xl font-bold text-emerald-800">404</h1>
+        <motion.h1 
+          className="text-9xl font-bold text-emerald-800"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          404
+        </motion.h1>
         <h2 className="text-4xl font-bold mt-6 text-gray-800">Page Not Found</h2>
         <p className="text-xl text-gray-600 mt-4 mb-10">
           Sorry, we couldn't find the page you're looking for.

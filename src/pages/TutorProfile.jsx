@@ -1,6 +1,6 @@
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios'; // replaced axios with api
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ export default function TutorProfile() {
   useEffect(() => {
     const loadTutor = async () => {
       try {
-        const res = await axios.get(
+        const res = await api.get(
           `${import.meta.env.VITE_API_URL}/users/${id}`
         );
 

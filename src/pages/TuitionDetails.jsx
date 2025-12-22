@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../api/axios'; // replaced axios with api
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -22,7 +22,7 @@ export default function TuitionDetails() {
 
   // Fetch tuition details
   useEffect(() => {
-    axios.get(`http://localhost:5000/dev/tuitions/${id}`)
+    api.get(`/dev/tuitions/${id}`)
       .then(res => {
         setTuition(res.data);
         if (user?.bookmarks?.includes(id)) setIsBookmarked(true);
@@ -40,7 +40,7 @@ export default function TuitionDetails() {
     if (!user) return toast.error('Please login as tutor');
 
     try {
-      await axios.post('http://localhost:5000/api/applications', {
+      await api.post('/api/applications', {
         tuitionId: id,
         expectedSalary: formData.expectedSalary,
         message: formData.message,
@@ -61,7 +61,7 @@ export default function TuitionDetails() {
     if (!user) return toast.error('Please login to bookmark');
 
     try {
-      await axios.post(`http://localhost:5000/api/users/bookmark/${id}`, {}, {
+      await api.post(`/api/users/bookmark/${id}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setIsBookmarked(!isBookmarked);
@@ -71,14 +71,12 @@ export default function TuitionDetails() {
     }
   };
 
-  // Loading state
   if (loading) return (
     <div className="text-center p-10">
       <span className="loading loading-spinner loading-lg"></span>
     </div>
   );
 
-  // Tuition not found
   if (!tuition) return (
     <div className="text-center p-10 text-red-600">
       Tuition not found.
@@ -142,7 +140,6 @@ export default function TuitionDetails() {
         </div>
       </div>
 
-      {/* Application Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-black-400 rounded-xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">

@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import DashboardLayout from '../../layouts/DashboardLayout';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate, Link } from 'react-router-dom';
+import api from '../../api/axios'; // <-- use api instance
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -10,17 +12,15 @@ export default function AdminDashboard() {
     activeTutors: 0
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-
         const [usersRes, tuitionsRes, paymentsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/users/all', config),
-          axios.get('http://localhost:5000/api/tuitions', config),
-          axios.get('http://localhost:5000/api/payments/history', config)
+          api.get('/users/all'),         // replaced axios.get
+          api.get('/tuitions'),          // replaced axios.get
+          api.get('/payments/history')   // replaced axios.get
         ]);
 
         const totalUsers = usersRes.data.length;
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
           Manage Users
         </Link>
 
-        <Link to="/dashboard/approve-tuitions" className="bg-indigo-500 shadow-lg shadow-indigo-500/50 ... btn btn-error btn-lg shadow-lg hover:shadow-2xl">
+        <Link to="/dashboard/approve-tuitions" className="bg-indigo-500 shadow-lg shadow-indigo-500/50 btn btn-error btn-lg shadow-lg hover:shadow-2xl">
           Approve Tuitions
         </Link>
       </div>

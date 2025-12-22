@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios'; // replaced axios with api
 import toast from 'react-hot-toast';
 
 export default function Register() {
@@ -20,7 +20,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const res = await api.post('/api/auth/register', formData); // use api instead of axios
       localStorage.setItem('token', res.data.token);
       toast.success('Registration successful!');
       navigate('/dashboard');
