@@ -1,16 +1,58 @@
-# React + Vite
+eTuitionBd - Online Tuition Marketplace
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+Project Name
+eTuitionBd
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Purpose
+eTuitionBd is a full-stack online tuition platform that connects students with qualified tutors across Bangladesh. It allows students to post tuition requests, tutors to apply for jobs, and admins to moderate content. The platform ensures safe payments through Stripe, role-based access, and a smooth hiring process with payment required for tutor approval.
+Features
 
-## React Compiler
+Role-Based Dashboards (Student, Tutor, Admin)
+Post Tuition Requests with pending status for admin approval
+Admin Moderation – Approve/Reject tuition posts before they become visible
+Tutor Application System – Tutors apply with expected salary
+Student Application Management – View applications, Accept & Pay or Reject
+Stripe Payment Integration – Student pays tutor's expected salary to approve
+Dynamic Statistics on all dashboards (real data from database)
+Responsive Design with DaisyUI/Tailwind CSS
+Authentication – Login/Register with JWT
+Tuition Listing with Filters (subject, location, salary range)
+Tutor Profiles with details and hire button (student only)
+Payment History for students and tutors
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Live URL:
+Currently running locally at https://luminous-frangollo-b6b2d3.netlify.app/
 
-## Expanding the ESLint configuration
+Packages Used
+Frontend (React + Vite)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+react, react-dom
+react-router-dom – Routing
+axios – API calls
+react-hot-toast – Notifications
+daisyui + tailwindcss – UI & styling
+@headlessui/react – Modals (optional)
+stripe / @stripe/stripe-js – Payment (if client-side)
+
+Backend (Node.js + Express)
+
+express – Server
+mongoose – MongoDB ODM
+bcryptjs – Password hashing
+jsonwebtoken – Auth tokens
+stripe – Payment processing
+cors – Cross-origin
+dotenv – Environment variables
+express-async-errors (optional)
+
+Database
+
+MongoDB (via MongoDB Atlas or local)
+
+Development Tools
+
+nodemon – Auto-restart server
+concurrently – Run frontend & backend together
+
+Tech Stack: MERN (MongoDB, Express, React, Node.js) + Stripe + Tailwind/DaisyUI
