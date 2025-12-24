@@ -1,24 +1,9 @@
+// src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import api from '../api/axios'; // ✅ use shared axios instance with baseURL
-
-/* =========================
-   FIREBASE CONFIG
-========================= */
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
-
-initializeApp(firebaseConfig);
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../firebase'; // ✅ uses single Firebase instance
+import api from '../api/axios';     // ✅ axios with baseURL
 
 /* =========================
    CONTEXT
@@ -33,6 +18,8 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const provider = new GoogleAuthProvider();
+
   /* =========================
      LOAD USER ON REFRESH
   ========================= */
@@ -43,7 +30,7 @@ export const AuthProvider = ({ children }) => {
       setToken(storedToken);
 
       api
-        .get('/users/profile') // ✅ uses api base URL
+        .get('/users/profile')
         .then((res) => {
           setUser(res.data);
           localStorage.setItem('role', res.data.role);
@@ -61,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /* =========================
-     AUTH HANDLER
+     COMMON AUTH HANDLER
   ========================= */
   const handleSuccessfulAuth = (userData, jwtToken) => {
     setUser(userData);
@@ -94,25 +81,24 @@ export const AuthProvider = ({ children }) => {
      GOOGLE LOGIN
   ========================= */
   const googleLogin = async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const { displayName, email, photoURL } = result.user;
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const { displayName, email, photoURL } = result.user;
 
-    const res = await api.post('/api/auth/google-login', {
-      name: displayName,
-      email,
-      photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
-    });
+      const res = await api.post('/auth/google', {
+        name: displayName,
+        email,
+        photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
+      });
 
-    handleSuccessfulAuth(res.data.user, res.data.token);
-    return res.data.user;
-  } catch (error) {
-    console.error(error);
-    toast.error('Google login failed');
-    throw error;
-  }
-};
-
+      handleSuccessfulAuth(res.data.user, res.data.token);
+      return res.data.user;
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast.error('Google login failed');
+      throw error;
+    }
+  };
 
   /* =========================
      LOGOUT
@@ -134,7 +120,6 @@ export const AuthProvider = ({ children }) => {
         register,
         googleLogin,
         logout,
-        api, // provide api instance for other components
       }}
     >
       {!loading && children}

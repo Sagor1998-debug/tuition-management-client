@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://tuition-management-server.onrender.com/dev',
+  baseURL: import.meta.env.VITE_API_URL,
   
    // MUST include /api
 });

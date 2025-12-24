@@ -1,6 +1,8 @@
+// src/firebase.js
 import { initializeApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics"; // only for production
+import { getAuth } from "firebase/auth";
 
+// ✅ Use your Vite env variables here
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -8,9 +10,11 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
+// Initialize Firebase **only once**
 const app = initializeApp(firebaseConfig);
 
+// Export auth to use in AuthContext.jsx
+export const auth = getAuth(app);
 export default app;

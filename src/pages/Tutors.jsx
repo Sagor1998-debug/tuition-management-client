@@ -21,11 +21,9 @@ export default function Tutors() {
       setError('');
 
       const res = await api.get('/tutors');
-
       console.log('API response:', res.data);
 
-      // ✅ CORRECT: backend sends { tutors: [...] }
-      setTutors(res.data.tutors || []);
+      setTutors(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
       setError('Failed to load tutors.');
@@ -36,6 +34,7 @@ export default function Tutors() {
 
   fetchTutors();
 }, []);
+
 
 
   const filteredTutors = Array.isArray(tutors)
