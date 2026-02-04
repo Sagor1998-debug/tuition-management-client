@@ -15,30 +15,43 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [usersRes, tuitionsRes, paymentsRes] = await Promise.all([
-          api.get('/users/all'),
-          api.get('/tuitions'),
-          api.get('/payments/history')
-        ]);
+  const fetchStats = async () => {
+    try {
+      const [studentsRes, tutorsRes, tuitionsRes, paymentsRes] = await Promise.all([
+        api.get('/students'),
+        api.get('/tutors'),
+        api.get('/tuitions'),
+        api.get('/payments/history'),
+      ]);
 
-        const totalUsers = usersRes.data.length;
-        const pendingTuitions = tuitionsRes.data.filter(post => post.status === 'pending').length;
-        const activeTutors = usersRes.data.filter(user => user.role === 'tutor').length;
-        const totalRevenue = paymentsRes.data.reduce((sum, p) => sum + p.amount, 0);
+      const students = studentsRes.data || [];
+      const tutors = tutorsRes.data.tutors || []; // backend returns { tutors: [...] }
+      const tuitions = tuitionsRes.data || [];
+      const payments = paymentsRes.data || [];
 
-        setStats({ totalUsers, pendingTuitions, totalRevenue, activeTutors });
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching admin stats:', err);
-        toast.error('Failed to load admin stats');
-        setLoading(false);
-      }
-    };
+      const totalUsers = students.length + tutors.length;
+      const activeTutors = tutors.length;
+      const pendingTuitions = tuitions.filter(t => t.status === 'pending').length;
+      const totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-    fetchStats();
-  }, []);
+      setStats({
+        totalUsers,
+        pendingTuitions,
+        totalRevenue,
+        activeTutors,
+      });
+
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching admin stats:', err);
+      toast.error('Failed to load admin stats');
+      setLoading(false);
+    }
+  };
+
+  fetchStats();
+}, []);
+
 
   if (loading) {
     return (

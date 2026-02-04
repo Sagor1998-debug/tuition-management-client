@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL,   // e.g., https://tuition-management-server.onrender.com/dev
+  withCredentials: true, // if you need cookies/auth
   
-   // MUST include /api
 });
 
 api.interceptors.request.use((config) => {
@@ -15,7 +15,3 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
-
-
-
-

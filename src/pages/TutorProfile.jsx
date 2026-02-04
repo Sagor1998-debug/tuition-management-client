@@ -1,6 +1,6 @@
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useEffect, useState } from 'react';
-import api from '../api/axios'; // using api instance
+import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -14,10 +14,10 @@ export default function TutorProfile() {
   useEffect(() => {
     const loadTutor = async () => {
       try {
-        const res = await api.get(`/users/${id}`); // use api instance and relative path
+        // ✅ Correct single tutor endpoint
+        const res = await api.get(`/tutors/${id}`);
 
-        // Ensure the fetched user is a tutor
-        if (res.data.role !== 'tutor') {
+        if (!res.data || res.data.role !== 'tutor') {
           toast.error('This user is not a tutor');
           navigate('/tutors');
           return;
@@ -25,7 +25,7 @@ export default function TutorProfile() {
 
         setTutor(res.data);
       } catch (err) {
-        console.error(err);
+        console.error('Tutor fetch error:', err);
         toast.error('Failed to load tutor profile');
       } finally {
         setLoading(false);
@@ -58,7 +58,7 @@ export default function TutorProfile() {
     return (
       <DashboardLayout>
         <div className="flex justify-center py-20">
-          <span className="loading loading-spinner loading-lg"></span>
+          <span className="loading loading-spinner loading-lg text-emerald-600"></span>
         </div>
       </DashboardLayout>
     );
@@ -67,9 +67,7 @@ export default function TutorProfile() {
   if (!tutor) {
     return (
       <DashboardLayout>
-        <p className="text-center text-red-600 py-20">
-          Tutor not found
-        </p>
+        <p className="text-center text-red-600 py-20">Tutor not found</p>
       </DashboardLayout>
     );
   }
@@ -86,10 +84,9 @@ export default function TutorProfile() {
 
           <div className="flex-1 space-y-3">
             <h2 className="text-3xl font-bold text-emerald-800">{tutor.name}</h2>
-
             <p><strong>Email:</strong> {tutor.email}</p>
             <p><strong>Qualifications:</strong> {tutor.qualifications || 'Not provided'}</p>
-            <p><strong>Experience:</strong> {tutor.experience || 0} years</p>
+            <p><strong>Experience:</strong> {tutor.experience || '0'} years</p>
 
             <div className="mt-6">
               <button

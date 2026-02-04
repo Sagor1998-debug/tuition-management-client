@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, createContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import api from '../api/axios'; // ✅ use shared axios instance
+import api from '../api/axios'; // shared Axios instance
 
 export const NotificationContext = createContext();
 
@@ -19,6 +19,7 @@ export default function DashboardLayout({ children }) {
     navigate('/login');
   };
 
+  // Define sidebar links based on role
   const getSidebarLinks = () => {
     if (user?.role === 'admin') {
       return [
@@ -38,6 +39,7 @@ export default function DashboardLayout({ children }) {
       ];
     }
 
+    // student
     return [
       { name: 'Dashboard', path: '/dashboard' },
       { name: 'My Tuitions', path: '/dashboard/my-tuitions' },
@@ -50,41 +52,58 @@ export default function DashboardLayout({ children }) {
 
   const sidebarLinks = getSidebarLinks();
 
+  // Load notifications (approved tuitions for students)
   const loadNotifications = async () => {
     try {
-      // ✅ Use deployed backend route
-      const res = await api.get('/dev/tuitions/my'); 
+      if (!user) return;
+
+      let res;
+      if (user.role === 'student') {
+        res = await api.get('/tuitions/my'); // returns student tuitions
+      } else if (user.role === 'tutor') {
+        res = await api.get('/applications/my-applications'); // tutor applications
+      } else {
+        return; // admin or other roles
+      }
+
+      if (!Array.isArray(res.data)) throw new Error('Invalid response');
+
       const notif = res.data
-        .filter(t => t.status === 'approved')
-        .map(t => ({
-          id: t._id,
-          text: `Your tuition "${t.subject}" was approved`,
+        .filter(item => item.status === 'approved')
+        .map(item => ({
+          id: item._id,
+          text:
+            user.role === 'student'
+              ? `Your tuition "${item.subject}" was approved`
+              : `A student applied to your tuition "${item.tuition?.subject}"`,
           read: false,
         }));
 
       setNotifications(notif);
       setUnreadCount(notif.filter(n => !n.read).length);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load notifications:', err);
       toast.error('Failed to load notifications');
     }
   };
 
-  const markAsRead = (id) => {
+  const markAsRead = id => {
     setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
+      prev.map(n => (n.id === id ? { ...n, read: true } : n))
     );
     setUnreadCount(prev => Math.max(prev - 1, 0));
   };
 
   useEffect(() => {
     loadNotifications();
-  }, []);
+    // optional: refresh notifications every 1 min
+    const interval = setInterval(loadNotifications, 60000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <NotificationContext.Provider value={{ notifications, unreadCount }}>
       <div className="min-h-screen bg-base-200 flex flex-col md:flex-row">
-
         {/* SIDEBAR */}
         <aside className="w-full md:w-64 bg-teal-600 text-white flex flex-col shrink-0">
           <div className="p-6 border-b border-teal-700">
@@ -121,7 +140,6 @@ export default function DashboardLayout({ children }) {
 
         {/* RIGHT CONTENT */}
         <div className="flex-1 flex flex-col">
-
           {/* TOP BAR */}
           <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold text-emerald-800">

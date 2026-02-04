@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../api/axios'; // Using api instance
+import api from '../../api/axios'; // Using unified axios instance
 
 export default function StudentDashboard() {
   const [stats, setStats] = useState({
@@ -13,13 +13,11 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-
+        // ✅ Removed manual config; axios instance handles Authorization
         const [tuitionsRes, appsRes, paymentsRes] = await Promise.all([
-          api.get('/tuitions/my', config),
-          api.get('/applications/my', config),
-          api.get('/payments/history', config)
+          api.get('/tuitions/my'),
+          api.get('/applications/my'),
+          api.get('/payments/history')
         ]);
 
         const totalSpent = paymentsRes.data.reduce((sum, p) => sum + p.amount, 0);

@@ -1,76 +1,79 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axios'; // <- use api.js, not axios.js
+import api from '../api/axios';
+import toast from 'react-hot-toast';
 
 export default function Tutors() {
   const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Filters & sorting
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const tutorsPerPage = 10;
 
- useEffect(() => {
+  // Fetch tutors from backend
   const fetchTutors = async () => {
     try {
       setLoading(true);
       setError('');
 
       const res = await api.get('/tutors');
-      console.log('API response:', res.data);
 
-      setTutors(Array.isArray(res.data) ? res.data : []);
+      // ✅ Access the array properly (adjust this field if your backend uses a different key)
+      const tutorList = res.data.tutors?.filter(u => u.role === 'tutor') || [];
+
+      setTutors(tutorList);
+      setCurrentPage(1); // reset pagination
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load tutors:', err);
       setError('Failed to load tutors.');
+      toast.error('Failed to load tutors');
     } finally {
       setLoading(false);
     }
   };
 
-  fetchTutors();
-}, []);
+  useEffect(() => {
+    fetchTutors();
+  }, []);
 
+  // Filter & sort tutors
+  const filteredTutors = tutors
+    .filter(tutor => {
+      const matchesSearch =
+        tutor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tutor.qualifications?.toLowerCase().includes(searchTerm.toLowerCase());
 
+      const matchesSubject =
+        !subjectFilter ||
+        tutor.qualifications?.toLowerCase().includes(subjectFilter.toLowerCase());
 
-  const filteredTutors = Array.isArray(tutors)
-    ? tutors
-        .filter(tutor => {
-          if (!tutor) return false;
-          const matchesSearch =
-            tutor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            tutor.qualifications?.toLowerCase().includes(searchTerm.toLowerCase());
-          const matchesSubject =
-            !subjectFilter ||
-            tutor.qualifications?.toLowerCase().includes(subjectFilter.toLowerCase());
-          return matchesSearch && matchesSubject;
-        })
-        .sort((a, b) => {
-          if (sortBy === 'experience') {
-            const expA = parseInt(a.experience) || 0;
-            const expB = parseInt(b.experience) || 0;
-            return expB - expA;
-          }
-          if (sortBy === 'name') return a.name.localeCompare(b.name);
-          return 0;
-        })
-    : [];
+      return matchesSearch && matchesSubject;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'experience') {
+        const expA = parseInt(a.experience) || 0;
+        const expB = parseInt(b.experience) || 0;
+        return expB - expA;
+      }
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      return 0;
+    });
 
+  // Pagination calculations
   const indexOfLastTutor = currentPage * tutorsPerPage;
   const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
   const currentTutors = filteredTutors.slice(indexOfFirstTutor, indexOfLastTutor);
   const totalPages = Math.ceil(filteredTutors.length / tutorsPerPage);
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage(prev => prev - 1);
-  };
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
-  };
+  const handlePrevPage = () => currentPage > 1 && setCurrentPage(p => p - 1);
+  const handleNextPage = () => currentPage < totalPages && setCurrentPage(p => p + 1);
 
   if (loading)
     return (
@@ -128,17 +131,23 @@ export default function Tutors() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
             {currentTutors.map(tutor => (
-              <div key={tutor._id} className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+              <div
+                key={tutor._id}
+                className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl shadow-lg p-6"
+              >
                 <div className="flex flex-col items-center text-center">
                   <img
                     src={tutor.photoUrl || 'https://randomuser.me/api/portraits/lego/5.jpg'}
                     alt={tutor.name}
-                    className=" w-28 h-28 rounded-full mb-4 object-cover border-4 border-emerald-600"
+                    className="w-28 h-28 rounded-full mb-4 object-cover border-4 border-emerald-600"
                   />
                   <h3 className="text-xl font-bold text-rose-900">{tutor.name}</h3>
-                  <p className="text-sm text-rose-900 mt-2">{tutor.qualifications || 'No qualifications listed'}</p>
-                  <p className="text-sm text-rose-900 mt-1">{tutor.experience || 'Not specified'}</p>
-                  <Link to={`/tutor/${tutor._id}`} className="bg-transparent hover:bg-purple-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-purple-600 hover:border-transparent rounded">
+                  <p className="text-sm text-rose-900 mt-2">{tutor.qualifications}</p>
+                  <p className="text-sm text-rose-900 mt-1">{tutor.experience}</p>
+                  <Link
+                    to={`/tutor/${tutor._id}`}
+                    className="mt-3 border border-purple-600 px-4 py-2 rounded hover:bg-purple-500 hover:text-white"
+                  >
                     View Profile
                   </Link>
                 </div>
@@ -147,13 +156,13 @@ export default function Tutors() {
           </div>
         )}
 
-        {/* Pagination Controls */}
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 gap-4">
             <button onClick={handlePrevPage} disabled={currentPage === 1} className="btn btn-outline">
               Previous
             </button>
-            <span className="flex items-center px-3 text-gray-700">
+            <span className="flex items-center px-3">
               Page {currentPage} of {totalPages}
             </span>
             <button onClick={handleNextPage} disabled={currentPage === totalPages} className="btn btn-outline">
