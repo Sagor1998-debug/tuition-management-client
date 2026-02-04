@@ -1,14 +1,9 @@
 // src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import {
-  GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
-} from 'firebase/auth';
-import { auth } from '../firebase'; // your Firebase config
-import api from '../api/axios';
-import { useNavigate } from 'react-router-dom'; // for redirect after login
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../firebase'; // ✅ uses single Firebase instance
+import api from '../api/axios';     // ✅ axios with baseURL
 
 /* =========================
    CONTEXT
@@ -23,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
   /* =========================
@@ -62,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', jwtToken);
     localStorage.setItem('role', userData.role);
     localStorage.setItem('name', userData.name);
-    toast.success(`Welcome back, ${userData.name || 'User'}!`);
+    toast.success(`Welcome back, ${userData.name}!`);
   };
 
   /* =========================
@@ -84,42 +78,27 @@ export const AuthProvider = ({ children }) => {
   };
 
   /* =========================
-     GOOGLE LOGIN (using REDIRECT – fixes popup issues on Netlify)
+     GOOGLE LOGIN
   ========================= */
-  const googleLogin = () => {
-    // This triggers redirect to Google – no promise returned here
-    signInWithRedirect(auth, provider);
+  const googleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const { displayName, email, photoURL } = result.user;
+
+      const res = await api.post('/auth/google', {
+        name: displayName,
+        email,
+        photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
+      });
+
+      handleSuccessfulAuth(res.data.user, res.data.token);
+      return res.data.user;
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast.error('Google login failed');
+      throw error;
+    }
   };
-
-  // Handle the result when Google redirects back to your app
-  useEffect(() => {
-    const handleGoogleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-
-        if (result?.user) {
-          const { displayName, email, photoURL } = result.user;
-
-          // Send data to your backend (same as before)
-          const res = await api.post('/auth/google', {
-            name: displayName,
-            email,
-            photoUrl: photoURL || 'https://i.imgur.com/0yQ9McP.png',
-          });
-
-          handleSuccessfulAuth(res.data.user, res.data.token);
-
-          // Redirect to dashboard or home
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        console.error('Google redirect login error:', error);
-        toast.error('Google login failed. Please try again.');
-      }
-    };
-
-    handleGoogleRedirectResult();
-  }, [navigate]);
 
   /* =========================
      LOGOUT
