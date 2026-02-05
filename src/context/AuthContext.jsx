@@ -2,8 +2,8 @@
 import { createContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../firebase'; // ✅ uses single Firebase instance
-import api from '../api/axios';     // ✅ axios with baseURL
+import { auth } from '../firebase';
+import api from '../api/axios';
 
 /* =========================
    CONTEXT
@@ -21,30 +21,29 @@ export const AuthProvider = ({ children }) => {
   const provider = new GoogleAuthProvider();
 
   /* =========================
-     LOAD USER ON REFRESH
+     LOAD USER ON REFRESH (FIXED)
   ========================= */
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
 
     if (storedToken) {
       setToken(storedToken);
-
-      api
-        .get('/users/profile')
-        .then((res) => {
-          setUser(res.data);
-          localStorage.setItem('role', res.data.role);
-          localStorage.setItem('name', res.data.name);
-        })
-        .catch(() => {
-          localStorage.clear();
-          setUser(null);
-          setToken(null);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
     }
+
+    // 🔑 ALWAYS try to load user via cookie
+    api
+      .get('/users/profile')
+      .then((res) => {
+        setUser(res.data);
+        localStorage.setItem('role', res.data.role);
+        localStorage.setItem('name', res.data.name);
+      })
+      .catch(() => {
+        localStorage.clear();
+        setUser(null);
+        setToken(null);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   /* =========================
@@ -52,10 +51,15 @@ export const AuthProvider = ({ children }) => {
   ========================= */
   const handleSuccessfulAuth = (userData, jwtToken) => {
     setUser(userData);
-    setToken(jwtToken);
-    localStorage.setItem('token', jwtToken);
+
+    if (jwtToken) {
+      setToken(jwtToken);
+      localStorage.setItem('token', jwtToken);
+    }
+
     localStorage.setItem('role', userData.role);
     localStorage.setItem('name', userData.name);
+
     toast.success(`Welcome back, ${userData.name}!`);
   };
 
