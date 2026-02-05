@@ -9,7 +9,7 @@ export default function Tuitions() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const [totalPages, setTotalPages] = useState(1);
 
   // Filters (UI only)
   const [search, setSearch] = useState('');
@@ -19,35 +19,41 @@ export default function Tuitions() {
   const [maxSalary, setMaxSalary] = useState('');
   const [sort, setSort] = useState('');
 
-  // Fetch all tuitions
-  const fetchTuitions = async () => {
+  const ITEMS_PER_PAGE = 10;
+
+  // Fetch tuitions from backend with pagination & filters
+  const fetchTuitions = async (pageNumber = 1) => {
     setLoading(true);
     try {
-      // ✅ Correct backend path
-      const res = await api.get('/tuitions');
+      const res = await api.get('/tuitions', {
+        params: {
+          page: pageNumber,
+          search,
+          subject,
+          location,
+          minSalary,
+          maxSalary,
+          sort
+        }
+      });
 
-      if (!Array.isArray(res.data)) {
-        throw new Error('Invalid API response');
-      }
+      const data = res.data?.tuitions || [];
+      const pages = res.data?.pagination?.pages || 1;
 
-      setTuitions(res.data);
+      setTuitions(data);
+      setTotalPages(pages);
     } catch (err) {
-      console.error(err);
+      console.error('Tuitions fetch error:', err);
       toast.error('Failed to load tuitions');
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch when page or filters change
   useEffect(() => {
-    fetchTuitions();
-  }, []);
-
-  // Pagination calculations
-  const totalPages = Math.ceil(tuitions.length / ITEMS_PER_PAGE);
-  const startIndex = (page - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedTuitions = tuitions.slice(startIndex, endIndex);
+    fetchTuitions(page);
+  }, [page, search, subject, location, minSalary, maxSalary, sort]);
 
   return (
     <div className="bg-cyan-400 shadow-lg shadow-cyan-500/50 py-10">
@@ -116,13 +122,13 @@ export default function Tuitions() {
           <div className="flex justify-center py-20">
             <span className="loading loading-spinner loading-lg"></span>
           </div>
-        ) : paginatedTuitions.length === 0 ? (
+        ) : tuitions.length === 0 ? (
           <p className="text-center text-gray-600 py-20">
             No tuitions found.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {paginatedTuitions.map((t) => (
+            {tuitions.map((t) => (
               <div
                 key={t._id}
                 className="card bg-gradient-to-r from-indigo-400 to-purple-400
@@ -181,7 +187,6 @@ export default function Tuitions() {
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

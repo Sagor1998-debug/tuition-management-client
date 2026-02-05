@@ -23,10 +23,10 @@ export default function Tutors() {
       setLoading(true);
       setError('');
 
-      const res = await api.get('/tutors');
+          const res = await api.get('/users/tutors');
 
       // ✅ Access the array properly (adjust this field if your backend uses a different key)
-      const tutorList = res.data.tutors?.filter(u => u.role === 'tutor') || [];
+           const tutorList = Array.isArray(res.data) ? res.data : [];
 
       setTutors(tutorList);
       setCurrentPage(1); // reset pagination

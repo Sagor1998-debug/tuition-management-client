@@ -14,8 +14,8 @@ export default function TutorProfile() {
   useEffect(() => {
     const loadTutor = async () => {
       try {
-        // ✅ Correct single tutor endpoint
-        const res = await api.get(`/tutors/${id}`);
+        // ✅ Correct existing backend endpoint
+        const res = await api.get(`/users/${id}`);
 
         if (!res.data || res.data.role !== 'tutor') {
           toast.error('This user is not a tutor');
@@ -83,10 +83,19 @@ export default function TutorProfile() {
           />
 
           <div className="flex-1 space-y-3">
-            <h2 className="text-3xl font-bold text-emerald-800">{tutor.name}</h2>
+            <h2 className="text-3xl font-bold text-emerald-800">
+              {tutor.name}
+            </h2>
+
             <p><strong>Email:</strong> {tutor.email}</p>
-            <p><strong>Qualifications:</strong> {tutor.qualifications || 'Not provided'}</p>
-            <p><strong>Experience:</strong> {tutor.experience || '0'} years</p>
+            <p>
+              <strong>Qualifications:</strong>{' '}
+              {tutor.qualifications || 'Not provided'}
+            </p>
+            <p>
+              <strong>Experience:</strong>{' '}
+              {tutor.experience || '0'} years
+            </p>
 
             <div className="mt-6">
               <button
